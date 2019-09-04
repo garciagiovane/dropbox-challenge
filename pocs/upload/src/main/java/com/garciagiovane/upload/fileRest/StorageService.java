@@ -2,7 +2,6 @@ package com.garciagiovane.upload.fileRest;
 
 import com.garciagiovane.upload.exceptions.StorageServiceFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -30,5 +29,5 @@ public class StorageService {
             throw new StorageServiceFileNotFoundException("File not found");
     }
 
-    
+
 }
