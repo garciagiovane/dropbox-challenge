@@ -1,64 +1,53 @@
 package com.garciagiovane.upload.ftp;
 
-import com.garciagiovane.upload.exceptions.CantSaveFileException;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
-import org.springframework.core.io.Resource;
+import org.apache.commons.net.ftp.FTPFile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FTPServiceImpl implements FTPService {
-    private final FTPClient ftpClient;
+    @Value("${my.hostname}")
+    private String hostName;
 
-    public FTPServiceImpl(){
-        this.ftpClient = new FTPClient();
-        connect("172.17.0.2");
-        login("giovane", "giovane");
+    @Value("${my.username}")
+    private String userName;
+
+    @Value("${my.password}")
+    private String password;
+
+    private FTPClient ftpClientInstance() throws IOException {
+        FTPClient ftpClient = new FTPClient();
+
+        ftpClient.connect(hostName);
+        ftpClient.login(userName, password);
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+        ftpClient.setFileTransferMode(FTP.COMPRESSED_TRANSFER_MODE);
+        return ftpClient;
     }
 
     @Override
-    public void connect(String host) {
-        try {
-            ftpClient.connect(host);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void login(String userName, String password) {
-        try {
-            if (ftpClient.login(userName, password)) {
-                System.out.println("login success");
-            } else
-                System.out.println("login failed");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public InputStream searchFileByName(String fileName) throws IOException {
-        InputStream fileToServe = ftpClient.retrieveFileStream(fileName);
-        return fileToServe;
-    }
-
-    public void listDirectories() {
-        try {
-            String[] files = ftpClient.listNames();
-
-            for (String file : files)
-                System.out.println(file);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return ftpClientInstance().retrieveFileStream(fileName);
     }
 
     @Override
-    public boolean saveFile(MultipartFile fileToSave) throws IOException, CantSaveFileException {
-        if (ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream()))
-            return true;
-        else
-            throw new CantSaveFileException("Error saving file");
+    public boolean saveFile(MultipartFile fileToSave) throws IOException {
+        return ftpClientInstance().storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
+    }
+
+    @Override
+    public boolean deleteFile(String fileName) throws IOException {
+        return ftpClientInstance().deleteFile(fileName);
+    }
+
+    @Override
+    public List<String> getAllFiles() throws IOException {
+        return Arrays.stream(ftpClientInstance().listFiles()).map(FTPFile::getName).collect(Collectors.toList());
     }
 }
