@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.*;
 
 @RestController
-@RequestMapping(value = "files")
+@RequestMapping(path = "/files")
 public class FileRest {
     private FTPService ftp;
 
