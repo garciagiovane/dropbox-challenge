@@ -1,8 +1,9 @@
 package com.garciagiovane.dropbox.controller;
 
+import com.garciagiovane.dropbox.controller.service.UserService;
+import com.garciagiovane.dropbox.dto.UserDTO;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.User;
-import com.garciagiovane.dropbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,42 +13,36 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 public class UserRestController {
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    public UserRestController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserRestController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("")
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userService.getAllUsers();
     }
 
     @PostMapping("")
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public User createUser(@RequestBody UserDTO userDTO) {
+        return userService.createUser(userDTO);
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable String id) throws UserNotFoundException {
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return userService.getUserById(id);
     }
 
     @PutMapping("/{id}")
-    public User updateUserById(@RequestBody User user, @PathVariable String id) throws UserNotFoundException {
-        return userRepository.findById(id).map(userFound -> {
-            user.setId(id);
-            return userRepository.save(user);
-        }).orElseThrow(UserNotFoundException::new);
+    public User updateUserById(@RequestBody UserDTO userDTO, @PathVariable String id) throws UserNotFoundException {
+        return userService.updateUserById(userDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUserById(@PathVariable String id) throws UserNotFoundException {
-        return userRepository.findById(id).map(user -> {
-            userRepository.delete(user);
-            return ResponseEntity.noContent().build();
-        }).orElseThrow(UserNotFoundException::new);
+        return userService.deleteUserById(id);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
