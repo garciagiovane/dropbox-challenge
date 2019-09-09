@@ -20,7 +20,7 @@ public class UserRestController {
     }
 
     @GetMapping("")
-    public List<User> getAllUsers(@RequestBody User user) {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -29,22 +29,22 @@ public class UserRestController {
         return userRepository.save(user);
     }
 
-    @GetMapping("/{_id}")
-    public User getUserById(@PathVariable String _id) throws UserNotFoundException {
-        return userRepository.findById(_id).orElseThrow(UserNotFoundException::new);
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable String id) throws UserNotFoundException {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    @PutMapping("/{_id}")
-    public User updateUserById(@RequestBody User user, @PathVariable String _id) throws UserNotFoundException {
-        return userRepository.findById(_id).map(userFound -> {
-            user.set_id(_id);
+    @PutMapping("/{id}")
+    public User updateUserById(@RequestBody User user, @PathVariable String id) throws UserNotFoundException {
+        return userRepository.findById(id).map(userFound -> {
+            user.setId(id);
             return userRepository.save(user);
         }).orElseThrow(UserNotFoundException::new);
     }
 
-    @DeleteMapping("/{_id}")
-    public ResponseEntity deleteUserById(@PathVariable String _id) throws UserNotFoundException {
-        return userRepository.findById(_id).map(user -> {
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteUserById(@PathVariable String id) throws UserNotFoundException {
+        return userRepository.findById(id).map(user -> {
             userRepository.delete(user);
             return ResponseEntity.noContent().build();
         }).orElseThrow(UserNotFoundException::new);
