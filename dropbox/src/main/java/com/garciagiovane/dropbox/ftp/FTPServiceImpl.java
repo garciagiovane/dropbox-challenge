@@ -38,4 +38,9 @@ public class FTPServiceImpl implements FTPService {
     public boolean deleteFile(String fileName) throws IOException {
         return ftpClientInstance().deleteFile(fileName);
     }
+
+    @Override
+    public boolean renameFile(String originalFileName, String newFileName) throws IOException {
+        return ftpClientInstance().rename(originalFileName, newFileName);
+    }
 }

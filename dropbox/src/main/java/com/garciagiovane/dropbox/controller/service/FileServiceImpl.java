@@ -41,7 +41,12 @@ public class FileServiceImpl implements FileService {
             UserFile userFile = new UserFile();
             try {
                 ftpService.saveFile(multipartFile);
-                userFile = fileRepository.save(UserFile.builder().idOwner(userId).completeName(multipartFile.getOriginalFilename()).build());
+                userFile = fileRepository.save(UserFile.builder()
+                        .idOwner(userId)
+                        .originalName(multipartFile.getOriginalFilename())
+                        .build());
+
+                renameFtpFileAndUpdateFileName(userFile);
 
                 userFound.setFiles(addItemsToListOfFiles(userFound.getFiles(), userFile));
                 userRepository.save(userFound);
@@ -66,7 +71,7 @@ public class FileServiceImpl implements FileService {
                 user.setFiles(removeItemsFromListOfFiles(user.getFiles(), fileToRemove));
                 userRepository.save(user);
                 fileRepository.delete(fileToRemove);
-                ftpService.deleteFile(fileToRemove.getCompleteName());
+                ftpService.deleteFile(fileToRemove.getOriginalName());
             } catch (NoFilesFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -82,5 +87,11 @@ public class FileServiceImpl implements FileService {
     private List<UserFile> removeItemsFromListOfFiles(List<UserFile> files, UserFile fileToRemove) {
         files.remove(fileToRemove);
         return files;
+    }
+
+    private void renameFtpFileAndUpdateFileName(UserFile userFile) throws IOException {
+        userFile.setFtpName(userFile.getId() + "-" + userFile.getOriginalName());
+        ftpService.renameFile(userFile.getOriginalName(), userFile.getFtpName());
+        fileRepository.save(userFile);
     }
 }

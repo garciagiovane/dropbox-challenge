@@ -15,7 +15,8 @@ import java.util.List;
 @Document
 public class UserFile {
     private String id;
-    private String completeName;
+    private String originalName;
+    private String ftpName;
     private String idOwner;
     private List<User> viewers;
 }

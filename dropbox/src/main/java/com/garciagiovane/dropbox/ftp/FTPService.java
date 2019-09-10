@@ -7,4 +7,5 @@ import java.io.IOException;
 public interface FTPService {
     boolean saveFile(MultipartFile fileToSave) throws IOException;
     boolean deleteFile(String fileName) throws IOException;
+    boolean renameFile(String originalFileName, String newFileName) throws IOException;
 }
