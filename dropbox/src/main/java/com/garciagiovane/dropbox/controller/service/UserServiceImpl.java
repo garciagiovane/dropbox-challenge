@@ -1,10 +1,14 @@
 package com.garciagiovane.dropbox.controller.service;
 
 import com.garciagiovane.dropbox.dto.UserDTO;
+import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
+import com.garciagiovane.dropbox.model.ShareEntity;
 import com.garciagiovane.dropbox.model.User;
+import com.garciagiovane.dropbox.model.UserFile;
 import com.garciagiovane.dropbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +20,13 @@ public class UserServiceImpl implements UserService {
     private FileService fileService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, FileService fileService){
+    public UserServiceImpl(UserRepository userRepository, FileService fileService) {
         this.userRepository = userRepository;
         this.fileService = fileService;
     }
 
     @Override
-    public User createUser(UserDTO userDTO){
+    public User createUser(UserDTO userDTO) {
         return userRepository.save(userDTO.user());
     }
 
@@ -59,5 +63,56 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public ResponseEntity shareFileById(String ownerId, ShareEntity shareEntity) throws UserNotFoundException, NoFilesFoundException {
+        User owner = userExists(ownerId);
+        User userToShareWith = userExists(shareEntity.getUserToShareWith());
+        UserFile file = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(shareEntity.getFileId())).findFirst().orElseThrow(NoFilesFoundException::new);
+
+        file.setViewers(addItemsToListOfViewers(file.getViewers(), userToShareWith));
+
+        var result = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(shareEntity.getFileId())).anyMatch(fileToUpdate -> {
+            fileToUpdate = file;
+            fileService.updateFile(fileToUpdate);
+            return true;
+        });
+
+        if (result){
+            userRepository.save(owner);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+//    @Override
+//    public ResponseEntity shareFileById(String ownerId, String fileId, String idUserToShareWith) throws UserNotFoundException, NoFilesFoundException {
+//        User owner = userExists(ownerId);
+//        User userToShareWith = userExists(idUserToShareWith);
+//        UserFile file = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(fileId)).findFirst().orElseThrow(NoFilesFoundException::new);
+//
+//        file.setViewers(addItemsToListOfViewers(file.getViewers(), userToShareWith));
+//
+//        var result = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(fileId)).anyMatch(fileToUpdate -> {
+//            fileToUpdate = file;
+//            fileService.updateFile(fileToUpdate);
+//            return true;
+//        });
+//
+//        if (result){
+//            userRepository.save(owner);
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//    }
+
+    private List<User> addItemsToListOfViewers(List<User> viewers, User newViewer) {
+        viewers.add(newViewer);
+        return viewers;
+    }
+
+    private User userExists(String userId) throws UserNotFoundException {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 }

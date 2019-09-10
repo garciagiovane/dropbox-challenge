@@ -2,7 +2,9 @@ package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.UserService;
 import com.garciagiovane.dropbox.dto.UserDTO;
+import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
+import com.garciagiovane.dropbox.model.ShareEntity;
 import com.garciagiovane.dropbox.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,11 @@ public class UserRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUserById(@PathVariable String id) throws UserNotFoundException {
         return userService.deleteUserById(id);
+    }
+
+    @PostMapping("/{ownerId}")
+    public ResponseEntity createUser(@PathVariable String ownerId, @RequestBody ShareEntity shareEntity) throws UserNotFoundException, NoFilesFoundException {
+        return userService.shareFileById(ownerId, shareEntity);
     }
 
     @ExceptionHandler(UserNotFoundException.class)

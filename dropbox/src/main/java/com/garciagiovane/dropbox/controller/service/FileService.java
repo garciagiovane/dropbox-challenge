@@ -13,4 +13,5 @@ public interface FileService {
     List<UserFile> getAllFilesFromUserByID(String id) throws Exception;
     UserFile saveFile(String userId, MultipartFile multipartFile) throws UserNotFoundException;
     ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException;
+    UserFile updateFile(UserFile userFile);
 }

@@ -79,6 +79,11 @@ public class FileServiceImpl implements FileService {
         }).orElseThrow(UserNotFoundException::new);
     }
 
+    @Override
+    public UserFile updateFile(UserFile userFile) {
+        return fileRepository.save(userFile);
+    }
+
     private List<UserFile> addItemsToListOfFiles(List<UserFile> files, UserFile newFile) {
         files.add(newFile);
         return files;
