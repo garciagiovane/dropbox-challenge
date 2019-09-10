@@ -13,10 +13,12 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
+    private FileService fileService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
+    public UserServiceImpl(UserRepository userRepository, FileService fileService){
         this.userRepository = userRepository;
+        this.fileService = fileService;
     }
 
     @Override
@@ -42,6 +44,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity deleteUserById(String id) throws UserNotFoundException {
         return userRepository.findById(id).map(user -> {
+            user.getFiles().forEach(userFile -> {
+                try {
+                    fileService.deleteFileById(user.getId(), userFile.getId());
+                } catch (UserNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
             userRepository.delete(user);
             return ResponseEntity.noContent().build();
         }).orElseThrow(UserNotFoundException::new);
