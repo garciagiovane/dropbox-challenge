@@ -68,10 +68,10 @@ public class FileServiceImpl implements FileService {
             try {
                 UserFile fileToRemove = fileRepository.findById(fileId).orElseThrow(NoFilesFoundException::new);
 
+                ftpService.deleteFile(fileToRemove.getFtpName());
                 user.setFiles(removeItemsFromListOfFiles(user.getFiles(), fileToRemove));
                 userRepository.save(user);
                 fileRepository.delete(fileToRemove);
-                ftpService.deleteFile(fileToRemove.getOriginalName());
             } catch (NoFilesFoundException | IOException e) {
                 e.printStackTrace();
             }
