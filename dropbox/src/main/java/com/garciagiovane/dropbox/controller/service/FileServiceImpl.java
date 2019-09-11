@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -82,6 +83,16 @@ public class FileServiceImpl implements FileService {
     @Override
     public UserFile updateFile(UserFile userFile) {
         return fileRepository.save(userFile);
+    }
+
+    @Override
+    public List<UserFile> getFilesByName(String userId, String fileName) throws UserNotFoundException, NoFilesFoundException {
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        List<UserFile> filesFound = fileRepository.findByOriginalNameContaining(fileName);
+        if (filesFound.isEmpty()){
+            throw new NoFilesFoundException();
+        }
+        return filesFound;
     }
 
     private List<UserFile> addItemsToListOfFiles(List<UserFile> files, UserFile newFile) {

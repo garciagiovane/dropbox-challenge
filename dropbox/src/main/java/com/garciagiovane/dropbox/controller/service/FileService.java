@@ -1,5 +1,6 @@
 package com.garciagiovane.dropbox.controller.service;
 
+import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.UserFile;
 import org.springframework.http.ResponseEntity;
@@ -14,4 +15,5 @@ public interface FileService {
     UserFile saveFile(String userId, MultipartFile multipartFile) throws UserNotFoundException;
     ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException;
     UserFile updateFile(UserFile userFile);
+    List<UserFile> getFilesByName(String userId, String fileName) throws UserNotFoundException, NoFilesFoundException;
 }

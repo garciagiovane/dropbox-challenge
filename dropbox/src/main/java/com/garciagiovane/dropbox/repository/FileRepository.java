@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface FileRepository extends MongoRepository<UserFile, String> {
     List<UserFile> findByIdOwner(String idOwner);
+    List<UserFile> findByOriginalNameContaining(String fileName);
 }

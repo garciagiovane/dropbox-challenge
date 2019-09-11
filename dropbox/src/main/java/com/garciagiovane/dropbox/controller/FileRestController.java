@@ -31,6 +31,11 @@ public class FileRestController {
         return fileService.getAllFilesFromUserByID(userId);
     }
 
+    @GetMapping("/{userId}/files/{fileName}")
+    public List<UserFile> getFilesByName(@PathVariable String userId, @PathVariable String fileName) throws UserNotFoundException, NoFilesFoundException {
+        return fileService.getFilesByName(userId, fileName);
+    }
+
     @PostMapping("/{userId}/files")
     public UserFile saveFile(@PathVariable String userId, @RequestParam MultipartFile file) throws UserNotFoundException {
         return fileService.saveFile(userId, file);
