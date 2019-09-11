@@ -6,6 +6,7 @@ import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
 import com.garciagiovane.dropbox.model.User;
 import com.garciagiovane.dropbox.model.UserFile;
+import com.garciagiovane.dropbox.model.Viewer;
 import com.garciagiovane.dropbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -71,7 +72,13 @@ public class UserServiceImpl implements UserService {
         User userToShareWith = userExists(shareEntity.getUserToShareWith());
         UserFile file = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(shareEntity.getFileId())).findFirst().orElseThrow(NoFilesFoundException::new);
 
-        file.setViewers(addItemsToListOfViewers(file.getViewers(), userToShareWith));
+        Viewer viewer = Viewer.builder()
+                .id(userToShareWith.getId())
+                .name(userToShareWith.getName())
+                .email(userToShareWith.getEmail())
+                .build();
+
+        file.setViewers(addItemsToListOfViewers(file.getViewers(), viewer));
 
         var result = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(shareEntity.getFileId())).anyMatch(fileToUpdate -> {
             fileToUpdate = file;
@@ -86,28 +93,7 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-//    @Override
-//    public ResponseEntity shareFileById(String ownerId, String fileId, String idUserToShareWith) throws UserNotFoundException, NoFilesFoundException {
-//        User owner = userExists(ownerId);
-//        User userToShareWith = userExists(idUserToShareWith);
-//        UserFile file = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(fileId)).findFirst().orElseThrow(NoFilesFoundException::new);
-//
-//        file.setViewers(addItemsToListOfViewers(file.getViewers(), userToShareWith));
-//
-//        var result = owner.getFiles().stream().filter(userFile -> userFile.getId().equals(fileId)).anyMatch(fileToUpdate -> {
-//            fileToUpdate = file;
-//            fileService.updateFile(fileToUpdate);
-//            return true;
-//        });
-//
-//        if (result){
-//            userRepository.save(owner);
-//            return ResponseEntity.noContent().build();
-//        }
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
-
-    private List<User> addItemsToListOfViewers(List<User> viewers, User newViewer) {
+    private List<Viewer> addItemsToListOfViewers(List<Viewer> viewers, Viewer newViewer) {
         viewers.add(newViewer);
         return viewers;
     }

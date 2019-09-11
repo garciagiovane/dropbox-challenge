@@ -48,7 +48,7 @@ public class UserRestController {
     }
 
     @PostMapping("/{ownerId}")
-    public ResponseEntity createUser(@PathVariable String ownerId, @RequestBody ShareEntity shareEntity) throws UserNotFoundException, NoFilesFoundException {
+    public ResponseEntity createShare(@PathVariable String ownerId, @RequestBody ShareEntity shareEntity) throws UserNotFoundException, NoFilesFoundException {
         return userService.shareFileById(ownerId, shareEntity);
     }
 
