@@ -7,13 +7,14 @@ import com.garciagiovane.dropbox.model.UserFile;
 import com.garciagiovane.dropbox.repository.FileRepository;
 import com.garciagiovane.dropbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -29,11 +30,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<UserFile> getAllFilesFromUserByID(String idOwner) throws Exception {
-        List<UserFile> files = fileRepository.findByIdOwner(idOwner);
-        if (!files.isEmpty())
-            return files;
-        throw new NoFilesFoundException();
+    public Page<UserFile> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException{
+        Page<UserFile> filesFound = fileRepository.findByIdOwner(idOwner, pageable);
+        if (filesFound.isEmpty())
+            throw new NoFilesFoundException();
+
+        return filesFound;
     }
 
     @Override
@@ -59,8 +61,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<UserFile> getAllFiles() {
-        return fileRepository.findAll();
+    public Page<UserFile> getAllFiles(Pageable pageable) {
+        return fileRepository.findAll(pageable);
     }
 
     @Override
@@ -86,9 +88,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<UserFile> getFilesByName(String userId, String fileName) throws UserNotFoundException, NoFilesFoundException {
+    public Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        List<UserFile> filesFound = fileRepository.findByOriginalNameContaining(fileName);
+        Page<UserFile> filesFound = fileRepository.findByOriginalNameContaining(fileName, pageable);
         if (filesFound.isEmpty()){
             throw new NoFilesFoundException();
         }

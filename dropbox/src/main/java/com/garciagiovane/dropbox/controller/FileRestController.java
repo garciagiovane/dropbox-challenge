@@ -5,11 +5,11 @@ import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.UserFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -22,18 +22,18 @@ public class FileRestController {
     }
 
     @GetMapping("/files")
-    public List<UserFile> getAllFiles(){
-        return fileService.getAllFiles();
+    public Page<UserFile> getAllFiles(Pageable pageable){
+        return fileService.getAllFiles(pageable);
     }
 
     @GetMapping("/{userId}/files")
-    public List<UserFile> getAllFilesFromUserByID(@PathVariable String userId) throws Exception {
-        return fileService.getAllFilesFromUserByID(userId);
+    public Page<UserFile> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException {
+        return fileService.getAllFilesFromUserByID(userId, pageable);
     }
 
     @GetMapping("/{userId}/files/{fileName}")
-    public List<UserFile> getFilesByName(@PathVariable String userId, @PathVariable String fileName) throws UserNotFoundException, NoFilesFoundException {
-        return fileService.getFilesByName(userId, fileName);
+    public Page<UserFile> getFilesByName(@PathVariable String userId, @PathVariable String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
+        return fileService.getFilesByName(userId, fileName, pageable);
     }
 
     @PostMapping("/{userId}/files")
