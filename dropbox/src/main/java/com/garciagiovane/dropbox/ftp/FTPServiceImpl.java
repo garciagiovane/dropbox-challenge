@@ -1,5 +1,7 @@
 package com.garciagiovane.dropbox.ftp;
 
+import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
+import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,28 +21,32 @@ public class FTPServiceImpl implements FTPService {
     @Value("${ftp.password}")
     private String password;
 
-    private FTPClient ftpClientInstance() throws IOException {
-        FTPClient ftpClient = new FTPClient();
+    private FTPClient ftpClientInstance() throws ConnectionRefusedException {
+        try {
+            FTPClient ftpClient = new FTPClient();
 
-        ftpClient.connect(host);
-        ftpClient.login(userName, password);
-        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-        ftpClient.setFileTransferMode(FTP.COMPRESSED_TRANSFER_MODE);
-        return ftpClient;
+            ftpClient.connect(host);
+            ftpClient.login(userName, password);
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+            ftpClient.setFileTransferMode(FTP.COMPRESSED_TRANSFER_MODE);
+            return ftpClient;
+        }catch (Exception error){
+            throw new ConnectionRefusedException();
+        }
     }
 
     @Override
-    public boolean saveFile(MultipartFile fileToSave) throws IOException {
+    public boolean saveFile(MultipartFile fileToSave) throws IOException, ConnectionRefusedException {
         return ftpClientInstance().storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
     }
 
     @Override
-    public boolean deleteFile(String fileName) throws IOException {
+    public boolean deleteFile(String fileName) throws IOException, ConnectionRefusedException {
         return ftpClientInstance().deleteFile(fileName);
     }
 
     @Override
-    public boolean renameFile(String originalFileName, String newFileName) throws IOException {
+    public boolean renameFile(String originalFileName, String newFileName) throws IOException, ConnectionRefusedException {
         return ftpClientInstance().rename(originalFileName, newFileName);
     }
 }

@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.controller.service;
 
 import com.garciagiovane.dropbox.dto.UserDTO;
+import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -55,6 +57,12 @@ public class UserServiceImpl implements UserService {
                 try {
                     fileService.deleteFileById(user.getId(), userFile.getId());
                 } catch (UserNotFoundException e) {
+                    e.printStackTrace();
+                } catch (ConnectionRefusedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoFilesFoundException e) {
                     e.printStackTrace();
                 }
             });

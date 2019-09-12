@@ -1,8 +1,10 @@
 package com.garciagiovane.dropbox.controller.service;
 
+import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.ftp.FTPService;
+import com.garciagiovane.dropbox.model.User;
 import com.garciagiovane.dropbox.model.UserFile;
 import com.garciagiovane.dropbox.repository.FileRepository;
 import com.garciagiovane.dropbox.repository.UserRepository;
@@ -30,7 +32,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Page<UserFile> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException{
+    public Page<UserFile> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException {
         Page<UserFile> filesFound = fileRepository.findByIdOwner(idOwner, pageable);
         if (filesFound.isEmpty())
             throw new NoFilesFoundException();
@@ -39,25 +41,20 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public UserFile saveFile(String userId, MultipartFile multipartFile) throws UserNotFoundException {
-        return userRepository.findById(userId).map(userFound -> {
-            UserFile userFile = new UserFile();
-            try {
-                ftpService.saveFile(multipartFile);
-                userFile = fileRepository.save(UserFile.builder()
-                        .idOwner(userId)
-                        .originalName(multipartFile.getOriginalFilename())
-                        .build());
+    public UserFile saveFile(String userId, MultipartFile multipartFile) throws UserNotFoundException, IOException, ConnectionRefusedException {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        if (ftpService.saveFile(multipartFile)){
+            UserFile userFile = fileRepository.save(UserFile.builder()
+                    .idOwner(userId)
+                    .originalName(multipartFile.getOriginalFilename())
+                    .build());
 
-                renameFtpFileAndUpdateFileName(userFile);
-
-                userFound.setFiles(addItemsToListOfFiles(userFound.getFiles(), userFile));
-                userRepository.save(userFound);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            renameFtpFileAndUpdateFileName(userFile);
+            user.setFiles(addItemsToListOfFiles(user.getFiles(), userFile));
+            userRepository.save(user);
             return userFile;
-        }).orElseThrow(UserNotFoundException::new);
+        }
+        throw new ConnectionRefusedException();
     }
 
     @Override
@@ -66,20 +63,16 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException {
-        return userRepository.findById(userId).map(user -> {
-            try {
-                UserFile fileToRemove = fileRepository.findById(fileId).orElseThrow(NoFilesFoundException::new);
+    public ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException, NoFilesFoundException, IOException, ConnectionRefusedException {
+        UserFile fileToRemove = fileRepository.findById(fileId).orElseThrow(NoFilesFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-                ftpService.deleteFile(fileToRemove.getFtpName());
-                user.setFiles(removeItemsFromListOfFiles(user.getFiles(), fileToRemove));
-                userRepository.save(user);
-                fileRepository.delete(fileToRemove);
-            } catch (NoFilesFoundException | IOException e) {
-                e.printStackTrace();
-            }
-            return ResponseEntity.noContent().build();
-        }).orElseThrow(UserNotFoundException::new);
+        ftpService.deleteFile(fileToRemove.getFtpName());
+        user.setFiles(removeItemsFromListOfFiles(user.getFiles(), fileToRemove));
+        userRepository.save(user);
+        fileRepository.delete(fileToRemove);
+
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -91,7 +84,7 @@ public class FileServiceImpl implements FileService {
     public Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Page<UserFile> filesFound = fileRepository.findByOriginalNameContaining(fileName, pageable);
-        if (filesFound.isEmpty()){
+        if (filesFound.isEmpty()) {
             throw new NoFilesFoundException();
         }
         return filesFound;
@@ -107,7 +100,7 @@ public class FileServiceImpl implements FileService {
         return files;
     }
 
-    private void renameFtpFileAndUpdateFileName(UserFile userFile) throws IOException {
+    private void renameFtpFileAndUpdateFileName(UserFile userFile) throws IOException, ConnectionRefusedException {
         userFile.setFtpName(userFile.getId() + "-" + userFile.getOriginalName());
         ftpService.renameFile(userFile.getOriginalName(), userFile.getFtpName());
         fileRepository.save(userFile);
