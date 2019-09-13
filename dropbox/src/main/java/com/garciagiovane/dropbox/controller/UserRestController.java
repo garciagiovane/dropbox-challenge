@@ -55,9 +55,4 @@ public class UserRestController {
     public ResponseEntity createShare(@PathVariable String ownerId, @RequestBody ShareEntity shareEntity) throws UserNotFoundException, NoFilesFoundException {
         return userService.shareFileById(ownerId, shareEntity);
     }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity exceptionHandler() {
-        return ResponseEntity.notFound().build();
-    }
 }
