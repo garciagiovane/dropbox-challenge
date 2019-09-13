@@ -11,6 +11,7 @@ import com.garciagiovane.dropbox.repository.FileRepository;
 import com.garciagiovane.dropbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,8 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Page<String> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
-        Page<String> filesFound = ftpService.getAllFilesByUserId(idOwner);
+        List<String> files = ftpService.getAllFilesByUserId(idOwner);
+        Page<String> filesFound = new PageImpl<>(files, pageable, files.size());
         if (filesFound.isEmpty())
             throw new NoFilesFoundException();
 

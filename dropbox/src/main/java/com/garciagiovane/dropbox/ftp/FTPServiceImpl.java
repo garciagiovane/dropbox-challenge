@@ -41,19 +41,23 @@ public class FTPServiceImpl implements FTPService {
     }
 
     @Override
-    public Page<String> getAllFilesByUserId(String userId) throws DirectoryNotFoundException, ConnectionRefusedException {
+    public List<String> getAllFilesByUserId(String userId) throws DirectoryNotFoundException, ConnectionRefusedException, IOException {
+        FTPClient ftpClient = new FTPClient();
         try {
-            FTPClient ftpClient = ftpClientInstance();
+            ftpClient = ftpClientInstance();
 
             if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
-                List<String> files = Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
-                return new PageImpl<>(files);
+                return Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
             }
+            throw new DirectoryNotFoundException();
         } catch (ConnectionRefusedException | IOException e) {
             throw new ConnectionRefusedException(e.getMessage());
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
         }
-        throw new DirectoryNotFoundException();
+
     }
 
     @Override
