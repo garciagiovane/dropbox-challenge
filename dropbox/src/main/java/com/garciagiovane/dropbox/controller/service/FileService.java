@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface FileService {
     Page<UserFile> getAllFiles(Pageable pageable);
@@ -19,4 +20,6 @@ public interface FileService {
     UserFile updateFile(UserFile userFile);
     Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
     Page<String> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException;
+    boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException;
+    void deleteDatabaseFiles(List<UserFile> files);
 }

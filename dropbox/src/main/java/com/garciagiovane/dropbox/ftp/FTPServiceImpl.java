@@ -27,16 +27,15 @@ public class FTPServiceImpl implements FTPService {
     @Value("${ftp.password}")
     private String password;
 
-    private FTPClient ftpClientInstance() throws ConnectionRefusedException {
+    private FTPClient ftpClientInstance() throws ConnectionRefusedException, IOException {
+        FTPClient ftpClient = new FTPClient();
         try {
-            FTPClient ftpClient = new FTPClient();
-
             ftpClient.connect(host);
             ftpClient.login(userName, password);
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             ftpClient.setFileTransferMode(FTP.COMPRESSED_TRANSFER_MODE);
             return ftpClient;
-        }catch (Exception error){
+        } catch (Exception error) {
             throw new ConnectionRefusedException(error.getMessage());
         }
     }
@@ -46,7 +45,7 @@ public class FTPServiceImpl implements FTPService {
         try {
             FTPClient ftpClient = ftpClientInstance();
 
-            if (directoryExists(userId)){
+            if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
                 List<String> files = Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
                 return new PageImpl<>(files);
@@ -58,17 +57,21 @@ public class FTPServiceImpl implements FTPService {
     }
 
     @Override
-    public boolean deleteFile(String fileName, String userId) throws DirectoryNotFoundException, ConnectionRefusedException {
+    public boolean deleteFile(String fileName, String userId) throws DirectoryNotFoundException, ConnectionRefusedException, IOException {
+        FTPClient ftpClient = new FTPClient();
         try {
-            FTPClient ftpClient = ftpClientInstance();
-            if (directoryExists(userId)){
+            ftpClient = ftpClientInstance();
+            if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
                 return ftpClient.deleteFile(fileName);
             }
-        } catch (IOException | ConnectionRefusedException e){
+            throw new DirectoryNotFoundException();
+        } catch (IOException | ConnectionRefusedException e) {
             throw new ConnectionRefusedException(e.getMessage());
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
         }
-        throw new DirectoryNotFoundException();
     }
 
     @Override
@@ -79,11 +82,12 @@ public class FTPServiceImpl implements FTPService {
     }
 
     @Override
-    public boolean saveFile(MultipartFile fileToSave, String userId) throws ConnectionRefusedException {
+    public boolean saveFile(MultipartFile fileToSave, String userId) throws ConnectionRefusedException, IOException {
+        FTPClient ftpClient = new FTPClient();
         try {
-            FTPClient ftpClient = ftpClientInstance();
+             ftpClient = ftpClientInstance();
 
-            if (directoryExists(userId)){
+            if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
                 return ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
             }
@@ -92,6 +96,9 @@ public class FTPServiceImpl implements FTPService {
             return ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
         } catch (ConnectionRefusedException | IOException e) {
             throw new ConnectionRefusedException(e.getMessage());
+        }finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
         }
     }
 
@@ -100,5 +107,41 @@ public class FTPServiceImpl implements FTPService {
         FTPClient ftpClient = ftpClientInstance();
         ftpClient.changeWorkingDirectory(ownerId);
         return ftpClient.rename(originalFileName, newFileName);
+    }
+
+    @Override
+    public boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException {
+        FTPClient ftpClient = new FTPClient();
+        try {
+            ftpClient = ftpClientInstance();
+            if (directoryExists(userId)){
+                clearDirectory(userId);
+                return ftpClientInstance().removeDirectory(userId);
+            }
+            throw new RuntimeException("Error to delete directory");
+        } catch (IOException | ConnectionRefusedException e) {
+            throw new ConnectionRefusedException(e.getMessage());
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
+        }
+    }
+
+    private void clearDirectory(String userId) throws IOException {
+        FTPClient ftpClient = new FTPClient();
+        try {
+            ftpClient = ftpClientInstance();
+            ftpClient.changeWorkingDirectory(userId);
+            List<FTPFile> filesInDirectory = Arrays.stream(ftpClient.listFiles()).collect(Collectors.toList());
+
+            for (FTPFile file : filesInDirectory) {
+                ftpClient.deleteFile(file.getName());
+            }
+        } catch (ConnectionRefusedException | IOException e) {
+            throw new RuntimeException("Error deleting files from the directory");
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
+        }
     }
 }

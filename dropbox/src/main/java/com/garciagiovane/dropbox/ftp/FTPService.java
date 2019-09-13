@@ -13,4 +13,5 @@ public interface FTPService {
     boolean renameFile(String originalFileName, String newFileName, String ownerId) throws IOException, ConnectionRefusedException;
     Page<String> getAllFilesByUserId(String userId) throws IOException, ConnectionRefusedException, DirectoryNotFoundException;
     boolean directoryExists(String userId) throws ConnectionRefusedException, IOException;
+    boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException;
 }

@@ -69,11 +69,17 @@ public class FileServiceImpl implements FileService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         ftpService.deleteFile(fileToRemove.getFtpName(), user.getId());
+        fileRepository.deleteById(fileId);
+
         user.setFiles(removeItemsFromListOfFiles(user.getFiles(), fileToRemove));
         userRepository.save(user);
-        fileRepository.delete(fileToRemove);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public void deleteDatabaseFiles(List<UserFile> files){
+        fileRepository.deleteAll(files);
     }
 
     @Override
@@ -105,5 +111,10 @@ public class FileServiceImpl implements FileService {
         userFile.setFtpName(userFile.getId() + "-" + userFile.getOriginalName());
         ftpService.renameFile(userFile.getOriginalName(), userFile.getFtpName(), userFile.getIdOwner());
         fileRepository.save(userFile);
+    }
+
+    @Override
+    public boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException {
+        return ftpService.deleteDirectory(userId);
     }
 }

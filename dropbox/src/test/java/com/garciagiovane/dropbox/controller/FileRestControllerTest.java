@@ -45,8 +45,7 @@ public class FileRestControllerTest {
     @Test
     public void getAllFilesFromUserByID() throws Exception {
         UserFile file = UserFile.builder().id("someid").ftpName("someid-test.txt").idOwner("ownerId").originalName("test.txt").build();
-        given(this.fileRestController.getAllFilesFromUserByID("ownerId", PageRequest.of(0, 1)))
-                .willReturn(new PageImpl<>(Collections.singletonList(file)));
+        given(this.fileRestController.getAllFilesFromUserByID("ownerId", PageRequest.of(0, 1))).willReturn(new PageImpl<String>(Arrays.asList(file.getFtpName())));
 
         this.mockMvc.perform(get("/users/ownerId/files?page=0&size=1")).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
     }

@@ -2,6 +2,8 @@ package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.UserService;
 import com.garciagiovane.dropbox.dto.UserDTO;
+import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
+import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
@@ -11,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -43,7 +47,7 @@ public class UserRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteUserById(@PathVariable String id) throws UserNotFoundException {
+    public ResponseEntity deleteUserById(@PathVariable String id) throws UserNotFoundException, ConnectionRefusedException, NoFilesFoundException, DirectoryNotFoundException, IOException {
         return userService.deleteUserById(id);
     }
 

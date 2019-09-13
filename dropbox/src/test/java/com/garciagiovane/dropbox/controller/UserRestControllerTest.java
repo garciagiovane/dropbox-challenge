@@ -1,12 +1,9 @@
 package com.garciagiovane.dropbox.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garciagiovane.dropbox.controller.service.UserService;
 
 import com.garciagiovane.dropbox.dto.UserDTO;
-import com.garciagiovane.dropbox.exception.NoFilesFoundException;
-import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
 import com.garciagiovane.dropbox.model.User;
 import org.junit.Test;

@@ -2,7 +2,6 @@ package com.garciagiovane.dropbox.controller.service;
 
 import com.garciagiovane.dropbox.dto.UserDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
-import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
@@ -52,26 +51,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity deleteUserById(String id) throws UserNotFoundException {
-        return userRepository.findById(id).map(user -> {
-            for (UserFile userFile : user.getFiles()) {
-                try {
-                    fileService.deleteFileById(user.getId(), userFile.getId());
-                } catch (UserNotFoundException e) {
-                    e.printStackTrace();
-                } catch (ConnectionRefusedException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoFilesFoundException e) {
-                    e.printStackTrace();
-                } catch (DirectoryNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            userRepository.delete(user);
-            return ResponseEntity.noContent().build();
-        }).orElseThrow(UserNotFoundException::new);
+    public ResponseEntity deleteUserById(String id) throws UserNotFoundException, ConnectionRefusedException, IOException {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+
+        fileService.deleteDirectory(user.getId());
+        fileService.deleteDatabaseFiles(user.getFiles());
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
