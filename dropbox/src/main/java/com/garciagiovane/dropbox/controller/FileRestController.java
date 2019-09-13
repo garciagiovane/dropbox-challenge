@@ -2,6 +2,7 @@ package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.FileService;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
+import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.UserFile;
@@ -30,7 +31,7 @@ public class FileRestController {
     }
 
     @GetMapping("/{userId}/files")
-    public Page<UserFile> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException {
+    public Page<String> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
         return fileService.getAllFilesFromUserByID(userId, pageable);
     }
 
@@ -45,7 +46,7 @@ public class FileRestController {
     }
 
     @DeleteMapping("/{userId}/files/{fileId}")
-    public ResponseEntity deleteFileById(@PathVariable String userId, @PathVariable String fileId) throws UserNotFoundException, IOException, NoFilesFoundException, ConnectionRefusedException {
+    public ResponseEntity deleteFileById(@PathVariable String userId, @PathVariable String fileId) throws UserNotFoundException, IOException, NoFilesFoundException, ConnectionRefusedException, DirectoryNotFoundException {
         return fileService.deleteFileById(userId, fileId);
     }
 }

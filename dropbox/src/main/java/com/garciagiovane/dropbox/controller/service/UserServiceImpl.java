@@ -2,6 +2,7 @@ package com.garciagiovane.dropbox.controller.service;
 
 import com.garciagiovane.dropbox.dto.UserDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
+import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
@@ -63,6 +64,8 @@ public class UserServiceImpl implements UserService {
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (NoFilesFoundException e) {
+                    e.printStackTrace();
+                } catch (DirectoryNotFoundException e) {
                     e.printStackTrace();
                 }
             });

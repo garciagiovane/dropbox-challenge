@@ -1,14 +1,21 @@
 package com.garciagiovane.dropbox.ftp;
 
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
-import com.garciagiovane.dropbox.exception.UserNotFoundException;
+import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
+import com.garciagiovane.dropbox.model.User;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FTPServiceImpl implements FTPService {
@@ -36,17 +43,49 @@ public class FTPServiceImpl implements FTPService {
     }
 
     @Override
-    public boolean saveFile(MultipartFile fileToSave) throws IOException, ConnectionRefusedException {
-        return ftpClientInstance().storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
+    public Page<String> getAllFilesByUserId(String userId) throws IOException, ConnectionRefusedException, DirectoryNotFoundException {
+        FTPClient ftpClient = ftpClientInstance();
+        if (directoryExists(userId)){
+            ftpClient.changeWorkingDirectory(userId);
+            List<String> files = Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
+            return new PageImpl<>(files);
+        }
+        throw new DirectoryNotFoundException();
     }
 
     @Override
-    public boolean deleteFile(String fileName) throws IOException, ConnectionRefusedException {
-        return ftpClientInstance().deleteFile(fileName);
+    public boolean deleteFile(String fileName, String userId) throws IOException, ConnectionRefusedException, DirectoryNotFoundException {
+        FTPClient ftpClient = ftpClientInstance();
+        if (directoryExists(userId)){
+            ftpClient.changeWorkingDirectory(userId);
+            return ftpClient.deleteFile(fileName);
+        }
+        throw new DirectoryNotFoundException();
     }
 
     @Override
-    public boolean renameFile(String originalFileName, String newFileName) throws IOException, ConnectionRefusedException {
-        return ftpClientInstance().rename(originalFileName, newFileName);
+    public boolean directoryExists(String userId) throws ConnectionRefusedException, IOException {
+        FTPFile[] directories = ftpClientInstance().listDirectories();
+        long listDirs = Arrays.stream(directories).filter(ftpFile -> ftpFile.getName().equalsIgnoreCase(userId)).count();
+        return listDirs > 0;
+    }
+
+    @Override
+    public boolean saveFile(MultipartFile fileToSave, String userId) throws IOException, ConnectionRefusedException {
+        FTPClient ftpClient = ftpClientInstance();
+        if (directoryExists(userId)){
+            ftpClient.changeWorkingDirectory(userId);
+            return ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
+        }
+        ftpClient.makeDirectory(userId);
+        ftpClient.changeWorkingDirectory(userId);
+        return ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
+    }
+
+    @Override
+    public boolean renameFile(String originalFileName, String newFileName, String ownerId) throws IOException, ConnectionRefusedException {
+        FTPClient ftpClient = ftpClientInstance();
+        ftpClient.changeWorkingDirectory(ownerId);
+        return ftpClient.rename(originalFileName, newFileName);
     }
 }

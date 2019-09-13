@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.controller.service;
 
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
+import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.UserFile;
@@ -14,9 +15,8 @@ import java.io.IOException;
 public interface FileService {
     Page<UserFile> getAllFiles(Pageable pageable);
     UserFile saveFile(String userId, MultipartFile multipartFile) throws UserNotFoundException, IOException, ConnectionRefusedException;
-    ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException, NoFilesFoundException, IOException, ConnectionRefusedException;
+    ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException, NoFilesFoundException, IOException, ConnectionRefusedException, DirectoryNotFoundException;
     UserFile updateFile(UserFile userFile);
-
     Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
-    Page<UserFile> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException;
+    Page<String> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException;
 }
