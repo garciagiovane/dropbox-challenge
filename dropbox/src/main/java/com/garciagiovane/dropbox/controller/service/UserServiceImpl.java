@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity deleteUserById(String id) throws UserNotFoundException {
         return userRepository.findById(id).map(user -> {
-            user.getFiles().forEach(userFile -> {
+            for (UserFile userFile : user.getFiles()) {
                 try {
                     fileService.deleteFileById(user.getId(), userFile.getId());
                 } catch (UserNotFoundException e) {
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
                 } catch (DirectoryNotFoundException e) {
                     e.printStackTrace();
                 }
-            });
+            }
             userRepository.delete(user);
             return ResponseEntity.noContent().build();
         }).orElseThrow(UserNotFoundException::new);
