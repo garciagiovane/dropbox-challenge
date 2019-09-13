@@ -2,7 +2,6 @@ package com.garciagiovane.dropbox.ftp;
 
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
-import com.garciagiovane.dropbox.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 

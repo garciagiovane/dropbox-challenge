@@ -9,5 +9,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FileRepository extends MongoRepository<UserFile, String> {
     Page<UserFile> findByOriginalNameContaining(String fileName, Pageable pageable);
-    Page<UserFile> findByIdOwner(String idOwner, Pageable pageable);
 }

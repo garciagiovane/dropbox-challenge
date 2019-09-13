@@ -2,7 +2,6 @@ package com.garciagiovane.dropbox.ftp;
 
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
-import com.garciagiovane.dropbox.model.User;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
