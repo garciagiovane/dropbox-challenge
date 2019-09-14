@@ -1,5 +1,7 @@
 package com.garciagiovane.dropbox.controller.service;
 
+import com.garciagiovane.dropbox.dto.UserDTO;
+import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -36,6 +39,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public Page<String> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
         List<String> filesFound = ftpService.getAllFilesByUserId(idOwner);
+
         Page<String> filePaged = new PageImpl<>(filesFound, pageable, filesFound.size());
         if (filePaged.isEmpty())
             throw new NoFilesFoundException();
@@ -50,6 +54,7 @@ public class FileServiceImpl implements FileService {
             UserFile userFile = fileRepository.save(UserFile.builder()
                     .idOwner(userId)
                     .originalName(multipartFile.getOriginalFilename())
+                    .viewers(Collections.emptyList())
                     .build());
 
             renameFtpFileAndUpdateFileName(userFile);

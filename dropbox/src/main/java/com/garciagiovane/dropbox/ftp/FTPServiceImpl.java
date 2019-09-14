@@ -122,7 +122,7 @@ public class FTPServiceImpl implements FTPService {
                 clearDirectory(userId);
                 return ftpClientInstance().removeDirectory(userId);
             }
-            throw new RuntimeException("Error to delete directory");
+            return true;
         } catch (IOException | ConnectionRefusedException e) {
             throw new ConnectionRefusedException(e.getMessage());
         } finally {
