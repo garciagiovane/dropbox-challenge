@@ -19,7 +19,7 @@ public interface FileService {
     ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException, NoFilesFoundException, IOException, ConnectionRefusedException, DirectoryNotFoundException;
     UserFile updateFile(UserFile userFile);
     Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
-    Page<String> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException;
+    Page<Object> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException;
     boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException;
     void deleteDatabaseFiles(List<UserFile> files);
 }

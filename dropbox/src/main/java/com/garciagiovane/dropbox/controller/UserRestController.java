@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,26 +30,26 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "Get all users")
-    @GetMapping("")
+    @ApiOperation(value = "Get all users, you can define page and size variable in the URI to paginate")
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Page<User> getAllUsers(Pageable pageable) {
         return userService.findAll(pageable);
     }
 
     @ApiOperation(value = "Receive a JSON with name and email fields and save it on the database")
-    @PostMapping("")
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public User createUser(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO);
     }
 
     @ApiOperation(value = "return an user according the id passed or throw an exception for user not found")
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public User getUserById(@PathVariable String id) throws UserNotFoundException {
         return userService.getUserById(id);
     }
 
     @ApiOperation(value = "Receive a JSON with name and email fields and update a user saved or throw an exception for user not found")
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public User updateUserById(@RequestBody UserDTO userDTO, @PathVariable String id) throws UserNotFoundException {
         return userService.updateUserById(userDTO, id);
     }

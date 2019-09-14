@@ -41,7 +41,7 @@ public class FTPServiceImpl implements FTPService {
     }
 
     @Override
-    public List<String> getAllFilesByUserId(String userId) throws DirectoryNotFoundException, ConnectionRefusedException, IOException {
+    public List<Object> getAllFilesByUserId(String userId) throws DirectoryNotFoundException, ConnectionRefusedException, IOException {
         FTPClient ftpClient = new FTPClient();
         try {
             ftpClient = ftpClientInstance();
