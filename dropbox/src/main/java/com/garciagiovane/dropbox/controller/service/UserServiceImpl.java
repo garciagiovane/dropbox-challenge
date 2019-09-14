@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -32,7 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserDTO userDTO) {
-        return userRepository.save(userDTO.user());
+        User user = userDTO.user();
+        user.setFiles(Collections.emptyList());
+        return userRepository.save(user);
     }
 
     @Override

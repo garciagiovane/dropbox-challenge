@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -21,5 +20,5 @@ public class UserFile {
     private String originalName;
     private String ftpName;
     private String idOwner;
-    private List<Viewer> viewers = new ArrayList<>();
+    private List<Viewer> viewers;
 }
