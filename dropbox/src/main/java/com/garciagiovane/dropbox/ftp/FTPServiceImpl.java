@@ -1,5 +1,6 @@
 package com.garciagiovane.dropbox.ftp;
 
+import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import org.apache.commons.net.ftp.FTP;
@@ -41,14 +42,16 @@ public class FTPServiceImpl implements FTPService {
     }
 
     @Override
-    public List<String> getAllFilesByUserId(String userId) throws DirectoryNotFoundException, ConnectionRefusedException, IOException {
+    public List<UserFileDTO> getAllFilesByUserId(String userId) throws DirectoryNotFoundException, ConnectionRefusedException, IOException {
         FTPClient ftpClient = new FTPClient();
         try {
             ftpClient = ftpClientInstance();
 
             if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
-                return Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
+//                List<UserFileDTO> userFileDTOS =
+                return Arrays.stream(ftpClient.listFiles()).map(ftpFile -> new UserFileDTO(ftpFile.getName())).collect(Collectors.toList());
+                //return Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
             }
             throw new DirectoryNotFoundException();
         } catch (ConnectionRefusedException | IOException e) {
@@ -89,7 +92,7 @@ public class FTPServiceImpl implements FTPService {
     public boolean saveFile(MultipartFile fileToSave, String userId) throws ConnectionRefusedException, IOException {
         FTPClient ftpClient = new FTPClient();
         try {
-             ftpClient = ftpClientInstance();
+            ftpClient = ftpClientInstance();
 
             if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
@@ -100,7 +103,7 @@ public class FTPServiceImpl implements FTPService {
             return ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
         } catch (ConnectionRefusedException | IOException e) {
             throw new ConnectionRefusedException(e.getMessage());
-        }finally {
+        } finally {
             ftpClient.logout();
             ftpClient.disconnect();
         }
@@ -118,7 +121,7 @@ public class FTPServiceImpl implements FTPService {
         FTPClient ftpClient = new FTPClient();
         try {
             ftpClient = ftpClientInstance();
-            if (directoryExists(userId)){
+            if (directoryExists(userId)) {
                 clearDirectory(userId);
                 return ftpClientInstance().removeDirectory(userId);
             }

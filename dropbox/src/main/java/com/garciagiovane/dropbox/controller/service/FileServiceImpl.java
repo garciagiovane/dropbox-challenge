@@ -37,10 +37,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Page<String> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
-        List<String> filesFound = ftpService.getAllFilesByUserId(idOwner);
-
-        Page<String> filePaged = new PageImpl<>(filesFound, pageable, filesFound.size());
+    public Page<UserFileDTO> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
+        List<UserFileDTO> filesFound = ftpService.getAllFilesByUserId(idOwner);
+        Page<UserFileDTO> filePaged = new PageImpl<>(filesFound, pageable, filesFound.size());
         if (filePaged.isEmpty())
             throw new NoFilesFoundException();
 

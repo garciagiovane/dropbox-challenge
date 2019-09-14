@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.FileService;
+import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -35,7 +36,7 @@ public class FileRestController {
 
     @ApiOperation(value = "Passing the user id in the URI you will get all files from this user in the FTP server")
     @GetMapping(value = "/{userId}/files", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Page<String> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
+    public Page<UserFileDTO> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
         return fileService.getAllFilesFromUserByID(userId, pageable);
     }
 
