@@ -1,6 +1,5 @@
 package com.garciagiovane.dropbox.controller.service;
 
-import com.garciagiovane.dropbox.dto.UserDTO;
 import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
@@ -37,13 +36,20 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Page<UserFileDTO> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
+    public Page<UserFileDTO> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws DirectoryNotFoundException, IOException, ConnectionRefusedException {
         List<UserFileDTO> filesFound = ftpService.getAllFilesByUserId(idOwner);
-        Page<UserFileDTO> filePaged = new PageImpl<>(filesFound, pageable, filesFound.size());
-        if (filePaged.isEmpty())
-            throw new NoFilesFoundException();
+        int itemsQuantity = pageable.getPageSize();
+        int currentPage = pageable.getPageNumber();
+        int startItem = itemsQuantity * currentPage;
 
-        return filePaged;
+        List<UserFileDTO> files;
+        if (filesFound.size() < startItem)
+            files = List.of();
+        else {
+            int toIndex = Math.min(startItem + itemsQuantity, filesFound.size());
+            files = filesFound.subList(startItem, toIndex);
+        }
+        return new PageImpl<>(files, pageable, filesFound.size());
     }
 
     @Override

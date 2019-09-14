@@ -49,9 +49,7 @@ public class FTPServiceImpl implements FTPService {
 
             if (directoryExists(userId)) {
                 ftpClient.changeWorkingDirectory(userId);
-//                List<UserFileDTO> userFileDTOS =
                 return Arrays.stream(ftpClient.listFiles()).map(ftpFile -> new UserFileDTO(ftpFile.getName())).collect(Collectors.toList());
-                //return Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
             }
             throw new DirectoryNotFoundException();
         } catch (ConnectionRefusedException | IOException e) {
