@@ -1,6 +1,5 @@
 package com.garciagiovane.dropbox.controller.service;
 
-import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -12,7 +11,6 @@ import com.garciagiovane.dropbox.repository.FileRepository;
 import com.garciagiovane.dropbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -33,25 +32,6 @@ public class FileServiceImpl implements FileService {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.ftpService = ftpService;
-    }
-
-    @Override
-    public Page<UserFileDTO> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws DirectoryNotFoundException, IOException, ConnectionRefusedException, UserNotFoundException {
-        if (userRepository.findById(idOwner).isEmpty())
-            throw new UserNotFoundException();
-        List<UserFileDTO> filesFound = ftpService.getAllFilesByUserId(idOwner);
-        int itemsQuantity = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = itemsQuantity * currentPage;
-
-        List<UserFileDTO> files;
-        if (filesFound.size() < startItem)
-            files = List.of();
-        else {
-            int toIndex = Math.min(startItem + itemsQuantity, filesFound.size());
-            files = filesFound.subList(startItem, toIndex);
-        }
-        return new PageImpl<>(files, pageable, filesFound.size());
     }
 
     @Override
@@ -101,14 +81,10 @@ public class FileServiceImpl implements FileService {
         return fileRepository.save(userFile);
     }
 
-    @Override
-    public Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
-        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Page<UserFile> filesFound = fileRepository.findByOriginalNameContaining(fileName, pageable);
-        if (filesFound.isEmpty()) {
-            throw new NoFilesFoundException();
-        }
-        return filesFound;
+    public Page<UserFile> getFilesByName(String userId, Optional<String> fileName, Pageable pageable) throws UserNotFoundException {
+        return userRepository.findById(userId).map(user -> fileName.isPresent() ?
+                fileRepository.findByOriginalNameContaining(fileName.get(), pageable) :
+                fileRepository.findAll(pageable)).orElseThrow(UserNotFoundException::new);
     }
 
     private List<UserFile> addItemsToListOfFiles(List<UserFile> files, UserFile newFile) {

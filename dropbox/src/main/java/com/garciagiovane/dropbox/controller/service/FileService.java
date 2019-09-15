@@ -1,6 +1,5 @@
 package com.garciagiovane.dropbox.controller.service;
 
-import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -13,14 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface FileService {
     Page<UserFile> getAllFiles(Pageable pageable);
     UserFile saveFile(String userId, MultipartFile multipartFile) throws UserNotFoundException, IOException, ConnectionRefusedException;
     ResponseEntity deleteFileById(String userId, String fileId) throws UserNotFoundException, NoFilesFoundException, IOException, ConnectionRefusedException, DirectoryNotFoundException;
     UserFile updateFile(UserFile userFile);
-    Page<UserFile> getFilesByName(String userId, String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
-    Page<UserFileDTO> getAllFilesFromUserByID(String idOwner, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException, UserNotFoundException;
     boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException;
     void deleteDatabaseFiles(List<UserFile> files);
+    Page<UserFile> getFilesByName(String userId, Optional<String> fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
 }

@@ -1,7 +1,6 @@
 package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.FileService;
-import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -34,16 +34,10 @@ public class FileRestController {
         return fileService.getAllFiles(pageable);
     }
 
-    @ApiOperation(value = "Passing the user id in the URI you will get all files from this user in the FTP server")
+    @ApiOperation(value = "return a list of files according to the user id, you can pass name parameter to filter by name or pass page and size parameters to paginate, can also pass both")
     @GetMapping(value = "/{userId}/files", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Page<UserFileDTO> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException, UserNotFoundException {
-        return fileService.getAllFilesFromUserByID(userId, pageable);
-    }
-
-    @ApiOperation(value = "Passing the user id and the file name or at least one character you will get the info about that docs or an exception for file not found")
-    @GetMapping(value = "/{userId}/files/{fileName}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Page<UserFile> getFilesByName(@PathVariable String userId, @PathVariable String fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
-        return fileService.getFilesByName(userId, fileName, pageable);
+    public Page<UserFile> getFilesByUserId(@PathVariable String userId, @RequestParam Optional<String> name, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
+        return fileService.getFilesByName(userId, name, pageable);
     }
 
     @ApiOperation(value = "Posting a file at the file parameter and passing the user id from the owner you will create a doc file this user and will receive a json representation for that file that was stored in an database")

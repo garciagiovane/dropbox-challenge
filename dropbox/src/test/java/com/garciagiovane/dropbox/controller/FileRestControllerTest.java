@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,21 +45,19 @@ public class FileRestControllerTest {
     }
 
     @Test
-    public void getAllFilesFromUserByID() throws Exception {
-        UserFile file = UserFile.builder().id("someid").ftpName("someid-test.txt").idOwner("ownerId").originalName("test.txt").build();
-        given(this.fileRestController.getAllFilesFromUserByID("ownerId", PageRequest.of(0, 1))).willReturn(new PageImpl<String>(Arrays.asList(file.getFtpName())));
-
-        this.mockMvc.perform(get("/users/ownerId/files?page=0&size=1")).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
+    public void deleteFileById() throws Exception {
+        given(this.fileRestController.deleteFileById("ownerId", "fileId")).willReturn(ResponseEntity.noContent().build());
+        this.mockMvc.perform(delete("/users/ownerId/files/fileId")).andExpect(status().isNoContent());
     }
 
     @Test
-    public void getFilesByName() throws Exception {
+    public void getFilesByUserId() throws Exception {
         UserFile file1 = UserFile.builder().id("someId").ftpName("someId-test.txt").idOwner("ownerId").originalName("test.txt").build();
         UserFile file2 = UserFile.builder().id("someId2").ftpName("someId2-test.txt").idOwner("ownerId").originalName("test2.txt").build();
         Page<UserFile> files = new PageImpl<>(Arrays.asList(file1, file2));
 
-        given(this.fileRestController.getFilesByName("ownerId", "t" , PageRequest.of(0, 2))).willReturn(files);
-        this.mockMvc.perform(get("/users/ownerId/files/t?page=0&size=2")).andExpect(status().isOk())
+        given(this.fileRestController.getFilesByUserId("ownerId", Optional.of("t") , PageRequest.of(0, 2))).willReturn(files);
+        this.mockMvc.perform(get("/users/ownerId/files?name=t&page=0&size=2")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[*].originalName", containsInAnyOrder("test.txt", "test2.txt")));
     }
 
