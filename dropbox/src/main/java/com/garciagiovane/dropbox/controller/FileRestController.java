@@ -36,10 +36,7 @@ public class FileRestController {
 
     @ApiOperation(value = "Passing the user id in the URI you will get all files from this user in the FTP server")
     @GetMapping(value = "/{userId}/files", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Page<UserFileDTO> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException {
-
-
-
+    public Page<UserFileDTO> getAllFilesFromUserByID(@PathVariable String userId, Pageable pageable) throws NoFilesFoundException, DirectoryNotFoundException, IOException, ConnectionRefusedException, UserNotFoundException {
         return fileService.getAllFilesFromUserByID(userId, pageable);
     }
 
