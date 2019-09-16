@@ -1,5 +1,6 @@
 package com.garciagiovane.dropbox.controller;
 
+import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.model.UserFile;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import org.junit.Test;
@@ -52,13 +53,11 @@ public class FileRestControllerTest {
 
     @Test
     public void getFilesByUserId() throws Exception {
-        UserFile file1 = UserFile.builder().id("someId").ftpName("someId-test.txt").idOwner("ownerId").originalName("test.txt").build();
-        UserFile file2 = UserFile.builder().id("someId2").ftpName("someId2-test.txt").idOwner("ownerId").originalName("test2.txt").build();
-        Page<UserFile> files = new PageImpl<>(Arrays.asList(file1, file2));
+        Page<UserFileDTO> files = new PageImpl<>(Arrays.asList(new UserFileDTO("test.txt"), new UserFileDTO("test2.txt")));
 
         given(this.fileRestController.getFilesByUserId("ownerId", Optional.of("t") , PageRequest.of(0, 2))).willReturn(files);
         this.mockMvc.perform(get("/users/ownerId/files?name=t&page=0&size=2")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[*].originalName", containsInAnyOrder("test.txt", "test2.txt")));
+                .andExpect(jsonPath("$.content[*].completeName", containsInAnyOrder("test.txt", "test2.txt")));
     }
 
     @Test
