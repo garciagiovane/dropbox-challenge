@@ -1,5 +1,6 @@
 package com.garciagiovane.dropbox.controller.service;
 
+import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -21,5 +22,5 @@ public interface FileService {
     UserFile updateFile(UserFile userFile);
     boolean deleteDirectory(String userId) throws ConnectionRefusedException, IOException;
     void deleteDatabaseFiles(List<UserFile> files);
-    Page<UserFile> getFilesByName(String userId, Optional<String> fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
+    Page<UserFileDTO> getFilesByName(String userId, Optional<String> fileName, Pageable pageable) throws UserNotFoundException, NoFilesFoundException;
 }

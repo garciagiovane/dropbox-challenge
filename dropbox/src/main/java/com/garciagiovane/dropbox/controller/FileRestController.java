@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.FileService;
+import com.garciagiovane.dropbox.dto.UserFileDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
@@ -36,7 +37,7 @@ public class FileRestController {
 
     @ApiOperation(value = "return a list of files according to the user id, you can pass name parameter to filter by name or pass page and size parameters to paginate, can also pass both")
     @GetMapping(value = "/{userId}/files", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Page<UserFile> getFilesByUserId(@PathVariable String userId, @RequestParam Optional<String> name, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
+    public Page<UserFileDTO> getFilesByUserId(@PathVariable String userId, @RequestParam Optional<String> name, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
         return fileService.getFilesByName(userId, name, pageable);
     }
 
