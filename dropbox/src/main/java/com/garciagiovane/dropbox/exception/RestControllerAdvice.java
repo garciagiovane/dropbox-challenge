@@ -37,6 +37,11 @@ public class RestControllerAdvice {
         return error(HttpStatus.INTERNAL_SERVER_ERROR, e);
     }
 
+    @ExceptionHandler(UserAlreadyRegisteredException.class)
+    public ResponseEntity handleUserAlreadyRegisteredException(UserAlreadyRegisteredException e){
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, e);
+    }
+
     private ResponseEntity error(HttpStatus status, Exception e){
         log.error("Exception: " + e);
         ExceptionModel exceptionModel = ExceptionModel.builder()

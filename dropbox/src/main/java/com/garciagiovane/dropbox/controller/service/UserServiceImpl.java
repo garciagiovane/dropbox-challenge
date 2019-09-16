@@ -3,6 +3,7 @@ package com.garciagiovane.dropbox.controller.service;
 import com.garciagiovane.dropbox.dto.UserDTO;
 import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
 import com.garciagiovane.dropbox.exception.NoFilesFoundException;
+import com.garciagiovane.dropbox.exception.UserAlreadyRegisteredException;
 import com.garciagiovane.dropbox.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.model.ShareEntity;
 import com.garciagiovane.dropbox.model.User;
@@ -32,10 +33,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(UserDTO userDTO) {
-        User user = userDTO.user();
-        user.setFiles(Collections.emptyList());
-        return userRepository.save(user);
+    public User createUser(UserDTO userDTO) throws UserAlreadyRegisteredException {
+        if (validateUser(userDTO.user())) {
+            User user = userDTO.user();
+            user.setFiles(Collections.emptyList());
+            return userRepository.save(user);
+        }
+        throw new UserAlreadyRegisteredException("email already in use");
+    }
+
+    @Override
+    public boolean validateUser(User user) {
+        return userRepository.findByEmail(user.getEmail()).isEmpty();
     }
 
     @Override
@@ -44,13 +53,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUserById(UserDTO userDTO, String id) throws UserNotFoundException {
-        return userRepository.findById(id).map(userFound -> {
+    public User updateUserById(UserDTO userDTO, String id) throws UserNotFoundException, UserAlreadyRegisteredException {
+        User userFound = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (!validateUser(userFound) && userDTO.getEmail().equalsIgnoreCase(userFound.getEmail())){
             User user = userDTO.user();
             user.setId(id);
             user.setFiles(userFound.getFiles());
             return userRepository.save(user);
-        }).orElseThrow(UserNotFoundException::new);
+        }
+        throw new UserAlreadyRegisteredException();
     }
 
     @Override
@@ -88,7 +99,7 @@ public class UserServiceImpl implements UserService {
             return true;
         });
 
-        if (result){
+        if (result) {
             userRepository.save(owner);
             return ResponseEntity.noContent().build();
         }

@@ -2,10 +2,7 @@ package com.garciagiovane.dropbox.controller;
 
 import com.garciagiovane.dropbox.controller.service.UserService;
 import com.garciagiovane.dropbox.dto.UserDTO;
-import com.garciagiovane.dropbox.exception.ConnectionRefusedException;
-import com.garciagiovane.dropbox.exception.DirectoryNotFoundException;
-import com.garciagiovane.dropbox.exception.NoFilesFoundException;
-import com.garciagiovane.dropbox.exception.UserNotFoundException;
+import com.garciagiovane.dropbox.exception.*;
 import com.garciagiovane.dropbox.model.ShareEntity;
 import com.garciagiovane.dropbox.model.User;
 import io.swagger.annotations.Api;
@@ -38,7 +35,7 @@ public class UserRestController {
 
     @ApiOperation(value = "Receive a JSON with name and email fields to save it on the database and return the created object")
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public User createUser(@RequestBody UserDTO userDTO) {
+    public User createUser(@RequestBody UserDTO userDTO) throws UserAlreadyRegisteredException {
         return userService.createUser(userDTO);
     }
 
@@ -50,7 +47,7 @@ public class UserRestController {
 
     @ApiOperation(value = "Receive a JSON with name and email fields and update a user saved or throw an exception for user not found")
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public User updateUserById(@RequestBody UserDTO userDTO, @PathVariable String id) throws UserNotFoundException {
+    public User updateUserById(@RequestBody UserDTO userDTO, @PathVariable String id) throws UserNotFoundException, UserAlreadyRegisteredException {
         return userService.updateUserById(userDTO, id);
     }
 
