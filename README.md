@@ -10,3 +10,5 @@ To use this API you will need a FTP server and a mongo database, the used here c
 both mongo and ftp was used in a docker container, you need to change the access information for mongo and ftp at the application properties in the resources folder and add your own information
 
 with the application started access the documentation to see what the API can do, documentation can be found [here](http://localhost:8080/swagger-ui.html) if you don't changed the port, if you changed, access localhost:[port]/swagger-ui.html
+
+Run the command ./gradlew clean build in he dropbox folder to build the application, then run the command java -jar build/libs/dropbox-0.0.1-SNAPSHOT.jar to start the application
