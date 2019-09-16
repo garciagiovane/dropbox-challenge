@@ -35,13 +35,13 @@ public class FileRestController {
         return fileService.getAllFiles(pageable);
     }
 
-    @ApiOperation(value = "return a list of files according to the user id, you can pass name parameter to filter by name or pass page and size parameters to paginate, can also pass both")
+    @ApiOperation(value = "return a list of files the user has in the FTP server according to the user id, you can pass name parameter to filter by name or pass page and size parameters to paginate, can also pass both")
     @GetMapping(value = "/{userId}/files", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Page<UserFileDTO> getFilesByUserId(@PathVariable String userId, @RequestParam Optional<String> name, Pageable pageable) throws UserNotFoundException, NoFilesFoundException {
         return fileService.getFilesByName(userId, name, pageable);
     }
 
-    @ApiOperation(value = "Posting a file at the file parameter and passing the user id from the owner you will create a doc file this user and will receive a json representation for that file that was stored in an database")
+    @ApiOperation(value = "Posting a file at the file parameter and passing the user id from the owner you will create a doc file this user and will receive a json representation for that file that was stored in an database, you need to send a multipartfile at the 'file' parameter")
     @PostMapping(value = "/{userId}/files", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public UserFile saveFile(@PathVariable String userId, @RequestParam MultipartFile file) throws UserNotFoundException, IOException, ConnectionRefusedException {
         return fileService.saveFile(userId, file);

@@ -30,19 +30,19 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "Get all users, you can define page and size variable in the URI to paginate")
+    @ApiOperation(value = "Get all users from the database, you can define page and size variable in the URI to paginate")
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Page<User> getAllUsers(Pageable pageable) {
         return userService.findAll(pageable);
     }
 
-    @ApiOperation(value = "Receive a JSON with name and email fields and save it on the database")
+    @ApiOperation(value = "Receive a JSON with name and email fields to save it on the database and return the created object")
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public User createUser(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO);
     }
 
-    @ApiOperation(value = "return an user according the id passed or throw an exception for user not found")
+    @ApiOperation(value = "Return all information from a user according the id passed or throw an exception for user not found")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public User getUserById(@PathVariable String id) throws UserNotFoundException {
         return userService.getUserById(id);
