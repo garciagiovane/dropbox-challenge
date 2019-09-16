@@ -7,8 +7,6 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,7 +26,7 @@ public class FTPServiceImpl implements FTPService {
     @Value("${ftp.password}")
     private String password;
 
-    private FTPClient ftpClientInstance() throws ConnectionRefusedException, IOException {
+    private FTPClient ftpClientInstance() throws ConnectionRefusedException {
         FTPClient ftpClient = new FTPClient();
         try {
             ftpClient.connect(host);
