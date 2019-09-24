@@ -10,7 +10,7 @@ import com.garciagiovane.dropbox.model.User;
 import com.garciagiovane.dropbox.model.UserFile;
 import com.garciagiovane.dropbox.model.Viewer;
 import com.garciagiovane.dropbox.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,15 +22,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private FileService fileService;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, FileService fileService) {
-        this.userRepository = userRepository;
-        this.fileService = fileService;
-    }
 
     @Override
     public User createUser(UserDTO userDTO) throws UserAlreadyRegisteredException {

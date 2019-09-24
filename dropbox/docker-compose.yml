@@ -1,0 +1,38 @@
+version: '3'
+services:
+ app:
+  image: openjdk:11
+  container_name: app
+  ports:
+    - 8080:8080
+  volumes:
+    - ./build/libs:/home/app
+  working_dir: /home/app
+  entrypoint: ["java", "-jar", "dropbox-0.0.1-SNAPSHOT.jar"]
+  depends_on:
+    - mongo
+    - ftp
+ mongo:
+  image: tutum/mongodb
+  container_name: mongo
+  ports:
+   - "27017:27017"
+   - "28017:28017"
+  restart: on-failure:5
+  environment:
+    - AUTH=no
+  volumes:
+    - /home/giovane/arquivos:/data/db
+ ftp:
+  image: bogem/ftp
+  container_name: ftp
+  ports:
+   - "47400-47470:47400-47470"
+  restart: on-failure:5
+  environment:
+   - FTP_USER=giovane
+   - FTP_PASS=giovane
+   - PASV_ADDRESS=10.0.75.1
+  volumes:
+   - /home/ftp:/home/vsftpd
+
