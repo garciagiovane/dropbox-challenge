@@ -30,9 +30,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-
-### Personalized ###
-.gradle/
-gradlew.bat
-gradle/
