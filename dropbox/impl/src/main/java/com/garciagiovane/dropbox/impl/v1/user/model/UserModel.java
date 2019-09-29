@@ -1,6 +1,6 @@
 package com.garciagiovane.dropbox.impl.v1.user.model;
 
-import com.garciagiovane.dropbox.impl.v1.file.model.UserFile;
+import com.garciagiovane.dropbox.impl.v1.file.model.FileModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +14,5 @@ public class UserModel {
     private String id;
     private String name;
     private String email;
-    private List<UserFile> files;
+    private List<FileModel> files;
 }
