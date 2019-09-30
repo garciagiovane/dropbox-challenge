@@ -3,8 +3,9 @@ package com.garciagiovane.dropbox.impl.v1.file.ftp;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPErrorSavingFileException;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPDirectoryNotFoundException;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPException;
+import com.garciagiovane.dropbox.impl.v1.file.mapper.FileMapper;
+import com.garciagiovane.dropbox.impl.v1.file.model.ImplFTPFile;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
-import lombok.AllArgsConstructor;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FTPService {
@@ -44,7 +47,7 @@ public class FTPService {
             long directory = Arrays.stream(getInstance().listDirectories()).filter(ftpFolder -> ftpFolder.getName().equalsIgnoreCase(owner.getId())).count();
             return directory > 0;
         } catch (IOException e) {
-            throw new FTPDirectoryNotFoundException(e.getMessage());
+            throw new FTPException(e.getMessage());
         }
     }
 
@@ -75,6 +78,22 @@ public class FTPService {
             if (ftpClient.rename(nameSavedOnFTP, newName))
                 return true;
             throw new FTPException("Error renaming file");
+        } catch (IOException e) {
+            throw new FTPException(e.getMessage());
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
+        }
+    }
+
+    public List<ImplFTPFile> searchFileByName(UserModel owner) throws IOException {
+        FTPClient ftpClient = getInstance();
+        try {
+            if (directoryExists(owner)) {
+                ftpClient.changeWorkingDirectory(owner.getId());
+                return Arrays.stream(ftpClient.listFiles()).map(FileMapper::mapToFTPFile).collect(Collectors.toList());
+            }
+            throw new FTPDirectoryNotFoundException();
         } catch (IOException e) {
             throw new FTPException(e.getMessage());
         } finally {

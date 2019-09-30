@@ -45,6 +45,8 @@ public class UserService {
                 throw new UserExistsException();
             userEntity.setName(userModel.getName());
             userEntity.setEmail(userModel.getEmail());
+            if (!userModel.getFiles().isEmpty())
+                userEntity.setFiles(userModel.getFiles());
             return userRepository.save(userEntity);
         }).orElseThrow(UserNotFoundException::new));
     }
