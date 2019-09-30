@@ -117,4 +117,19 @@ public class FTPService {
             ftpClient.disconnect();
         }
     }
+
+    public boolean deleteDirectory(UserModel user) throws IOException {
+        FTPClient ftpClient = getInstance();
+        try {
+            if (directoryExists(user)) {
+                return ftpClient.removeDirectory(user.getId());
+            }
+            throw new FTPDirectoryNotFoundException();
+        } catch (IOException e) {
+            throw new FTPException(e.getMessage());
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
+        }
+    }
 }

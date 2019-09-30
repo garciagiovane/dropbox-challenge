@@ -11,15 +11,12 @@ import com.garciagiovane.dropbox.impl.v1.file.model.ImplFTPFile;
 import com.garciagiovane.dropbox.impl.v1.file.repository.FileRepository;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -96,7 +93,6 @@ public class FileService {
     }
 
     public boolean deleteFile(String ownerId, String fileId) {
-
         UserModel user = implFacade.findById(ownerId);
         FileModel file = getFileFromList(user.getFiles(), fileId);
         try {
@@ -105,6 +101,24 @@ public class FileService {
                 implFacade.updateUser(ownerId, user);
                 return true;
             }
+            throw new FTPErrorDeletingFileException();
+        } catch (IOException e) {
+            throw new FTPErrorExitingException(e.getMessage());
+        }
+    }
+
+    public boolean deleteDirectory(String ownerId) {
+        UserModel user = implFacade.findById(ownerId);
+        try {
+            listAllFilesFTPFromUser(user).forEach(implFTPFile -> {
+                try {
+                    ftpService.deleteFile(user, implFTPFile.getName());
+                } catch (IOException e) {
+                    throw new FTPErrorExitingException(e.getMessage());
+                }
+            });
+            if (ftpService.deleteDirectory(user))
+                return true;
             throw new FTPErrorDeletingFileException();
         } catch (IOException e) {
             throw new FTPErrorExitingException(e.getMessage());

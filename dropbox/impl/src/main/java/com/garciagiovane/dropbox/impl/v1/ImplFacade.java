@@ -1,8 +1,10 @@
 package com.garciagiovane.dropbox.impl.v1;
 
+import com.garciagiovane.dropbox.impl.v1.file.ImplFileFacade;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import com.garciagiovane.dropbox.impl.v1.user.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ImplFacade {
     private UserService userService;
+//    @Autowired
+//    private ImplFileFacade fileFacade;
 
     public UserModel create(UserModel userModel){
         return userService.create(userModel);
@@ -31,5 +35,4 @@ public class ImplFacade {
     public boolean deleteUser(String id){
         return userService.deleteUser(id);
     }
-
 }

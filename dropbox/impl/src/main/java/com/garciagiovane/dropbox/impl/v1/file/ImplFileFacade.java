@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Component
@@ -25,5 +24,9 @@ public class ImplFileFacade {
 
     public boolean deleteFile(String ownerId, String fileId) {
         return fileService.deleteFile(ownerId, fileId);
+    }
+
+    public boolean deleteDirectory(String ownerId) {
+        return fileService.deleteDirectory(ownerId);
     }
 }
