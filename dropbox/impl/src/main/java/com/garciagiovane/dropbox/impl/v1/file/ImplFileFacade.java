@@ -22,4 +22,8 @@ public class ImplFileFacade {
     public Page<ImplFTPFile> searchFiles(String ownerId, String fileName, Pageable pageable){
         return fileService.searchFileByName(ownerId, fileName, pageable);
     }
+
+    public boolean deleteFile(String ownerId, String fileId) {
+        return fileService.deleteFile(ownerId, fileId);
+    }
 }

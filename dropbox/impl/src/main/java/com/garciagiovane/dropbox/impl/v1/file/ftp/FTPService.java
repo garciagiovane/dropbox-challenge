@@ -101,4 +101,20 @@ public class FTPService {
             ftpClient.disconnect();
         }
     }
+
+    public boolean deleteFile(UserModel user, String fileName) throws IOException {
+        FTPClient ftpClient = getInstance();
+        try {
+            if (directoryExists(user)) {
+                ftpClient.changeWorkingDirectory(user.getId());
+                return ftpClient.deleteFile(fileName);
+            }
+            throw new FTPDirectoryNotFoundException();
+        } catch (IOException e) {
+            throw new FTPException(e.getMessage());
+        } finally {
+            ftpClient.logout();
+            ftpClient.disconnect();
+        }
+    }
 }

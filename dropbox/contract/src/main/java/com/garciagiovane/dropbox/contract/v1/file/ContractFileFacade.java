@@ -24,4 +24,8 @@ public class ContractFileFacade {
     public Page<FTPFileResponse> searchFiles(String ownerId, String fileName, Pageable pageable) {
         return implFileFacade.searchFiles(ownerId, fileName, pageable).map(FileMapper::mapToFTPFileResponse);
     }
+
+    public boolean deleteFile(String ownerId, String fileId) {
+        return implFileFacade.deleteFile(ownerId, fileId);
+    }
 }

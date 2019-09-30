@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.impl.v1.file.service;
 
 import com.garciagiovane.dropbox.impl.v1.ImplFacade;
+import com.garciagiovane.dropbox.impl.v1.file.exception.FTPErrorDeletingFileException;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPErrorExitingException;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPFileNotFoundException;
 import com.garciagiovane.dropbox.impl.v1.file.ftp.FTPService;
@@ -10,6 +11,8 @@ import com.garciagiovane.dropbox.impl.v1.file.model.ImplFTPFile;
 import com.garciagiovane.dropbox.impl.v1.file.repository.FileRepository;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -81,7 +84,7 @@ public class FileService {
         return paginateList(listAllFilesFTPFromUser(user).stream().filter(implFTPFile -> implFTPFile.getName().contains(fileName)).collect(Collectors.toList()), pageable);
     }
 
-    public List<ImplFTPFile> listAllFilesFTPFromUser(UserModel user) {
+    private List<ImplFTPFile> listAllFilesFTPFromUser(UserModel user) {
         try {
             List<ImplFTPFile> filesFound = ftpService.searchFileByName(user);
             if (filesFound.isEmpty())
@@ -90,5 +93,25 @@ public class FileService {
         } catch (IOException e) {
             throw new FTPErrorExitingException(e.getMessage());
         }
+    }
+
+    public boolean deleteFile(String ownerId, String fileId) {
+
+        UserModel user = implFacade.findById(ownerId);
+        FileModel file = getFileFromList(user.getFiles(), fileId);
+        try {
+            if (ftpService.deleteFile(user, file.getFtpName())) {
+                user.setFiles(removeItemsFromListOfFiles(user.getFiles(), file));
+                implFacade.updateUser(ownerId, user);
+                return true;
+            }
+            throw new FTPErrorDeletingFileException();
+        } catch (IOException e) {
+            throw new FTPErrorExitingException(e.getMessage());
+        }
+    }
+
+    private FileModel getFileFromList(List<FileModel> files, String fileId) {
+        return files.stream().filter(file -> file.getId().equalsIgnoreCase(fileId)).findFirst().orElseThrow(FTPFileNotFoundException::new);
     }
 }

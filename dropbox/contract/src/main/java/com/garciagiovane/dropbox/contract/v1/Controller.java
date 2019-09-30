@@ -64,4 +64,10 @@ public class Controller {
     public Page<FTPFileResponse> searchFiles(@PathVariable String ownerId, @RequestParam(required = false) String fileName, Pageable pageable) {
         return fileFacade.searchFiles(ownerId, fileName, pageable);
     }
+
+    @DeleteMapping("/{ownerId}/files/{fileId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public boolean deleteFile(@PathVariable String ownerId, @PathVariable String fileId) {
+        return fileFacade.deleteFile(ownerId, fileId);
+    }
 }
