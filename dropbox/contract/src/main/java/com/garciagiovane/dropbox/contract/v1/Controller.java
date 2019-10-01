@@ -1,13 +1,10 @@
 package com.garciagiovane.dropbox.contract.v1;
 
-import com.garciagiovane.dropbox.contract.v1.file.ContractFileFacade;
 import com.garciagiovane.dropbox.contract.v1.file.model.response.FTPFileResponse;
 import com.garciagiovane.dropbox.contract.v1.file.model.response.FileResponse;
 import com.garciagiovane.dropbox.contract.v1.user.model.request.UserRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.response.UserResponse;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,11 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/v1/users")
 @RestController
 @AllArgsConstructor
-@Slf4j
 public class Controller {
 
     private ContractFacade contractFacade;
-    private ContractFileFacade fileFacade;
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -56,18 +51,18 @@ public class Controller {
     @PostMapping("/{id}/files")
     @ResponseStatus(value = HttpStatus.CREATED)
     public FileResponse saveFile(@PathVariable String id, @RequestParam MultipartFile fileToSave){
-        return fileFacade.saveFile(id, fileToSave);
+        return contractFacade.saveFile(id, fileToSave);
     }
 
     @GetMapping("/{ownerId}/files")
     @ResponseStatus(value = HttpStatus.OK)
     public Page<FTPFileResponse> searchFiles(@PathVariable String ownerId, @RequestParam(required = false) String fileName, Pageable pageable) {
-        return fileFacade.searchFiles(ownerId, fileName, pageable);
+        return contractFacade.searchFiles(ownerId, fileName, pageable);
     }
 
     @DeleteMapping("/{ownerId}/files/{fileId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public boolean deleteFile(@PathVariable String ownerId, @PathVariable String fileId) {
-        return fileFacade.deleteFile(ownerId, fileId);
+        return contractFacade.deleteFile(ownerId, fileId);
     }
 }

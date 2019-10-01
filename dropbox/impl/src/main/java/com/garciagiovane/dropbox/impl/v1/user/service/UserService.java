@@ -1,6 +1,5 @@
 package com.garciagiovane.dropbox.impl.v1.user.service;
 
-import com.garciagiovane.dropbox.impl.v1.file.ImplFileFacade;
 import com.garciagiovane.dropbox.impl.v1.user.exception.EmptyDatabaseException;
 import com.garciagiovane.dropbox.impl.v1.user.exception.UserExistsException;
 import com.garciagiovane.dropbox.impl.v1.user.exception.UserNotFoundException;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private UserRepository userRepository;
-    private ImplFileFacade fileFacade;
 
     public UserModel findById(String id) {
         return UserMapper.mapToModel(userRepository.findById(id).orElseThrow(UserNotFoundException::new));
@@ -55,7 +53,6 @@ public class UserService {
 
     public boolean deleteUser(String id){
         return userRepository.findById(id).map(userEntity -> {
-            fileFacade.deleteDirectory(id);
             userRepository.delete(userEntity);
             return true;
         }).orElseThrow(UserNotFoundException::new);

@@ -42,7 +42,7 @@ public class FTPService {
         }
     }
 
-    private boolean directoryExists(UserModel owner) {
+    public boolean directoryExists(UserModel owner) {
         try {
             long directory = Arrays.stream(getInstance().listDirectories()).filter(ftpFolder -> ftpFolder.getName().equalsIgnoreCase(owner.getId())).count();
             return directory > 0;
@@ -122,9 +122,10 @@ public class FTPService {
         FTPClient ftpClient = getInstance();
         try {
             if (directoryExists(user)) {
+
                 return ftpClient.removeDirectory(user.getId());
             }
-            throw new FTPDirectoryNotFoundException();
+            return false;
         } catch (IOException e) {
             throw new FTPException(e.getMessage());
         } finally {
