@@ -44,8 +44,8 @@ public class Controller {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public boolean deleteUser(@PathVariable String id){
-        return contractFacade.deleteUser(id);
+    public void deleteUser(@PathVariable String id){
+        contractFacade.deleteUser(id);
     }
 
     @PostMapping("/{id}/files")
@@ -62,7 +62,7 @@ public class Controller {
 
     @DeleteMapping("/{ownerId}/files/{fileId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public boolean deleteFile(@PathVariable String ownerId, @PathVariable String fileId) {
-        return contractFacade.deleteFile(ownerId, fileId);
+    public void deleteFile(@PathVariable String ownerId, @PathVariable String fileId) {
+        contractFacade.deleteFile(ownerId, fileId);
     }
 }

@@ -33,24 +33,25 @@ public class ImplFacade {
         return userFacade.updateUser(id, userModel);
     }
 
-    public boolean deleteUser(String id) {
+    public void deleteUser(String id) {
         deleteDirectory(id);
-        return userFacade.deleteUser(id);
+        userFacade.deleteUser(id);
     }
 
     public FileModel saveFile(String ownerId, MultipartFile fileToSave) {
-        return fileFacade.saveFile(ownerId, fileToSave);
+        return userFacade.addFileToUser(ownerId, fileFacade.saveFile(findById(ownerId), fileToSave));
     }
 
     public Page<ImplFTPFile> searchFiles(String ownerId, String fileName, Pageable pageable) {
-        return fileFacade.searchFiles(ownerId, fileName, pageable);
+        return fileFacade.searchFiles(findById(ownerId), fileName, pageable);
     }
 
-    public boolean deleteFile(String ownerId, String fileId) {
-        return fileFacade.deleteFile(ownerId, fileId);
+    public void deleteFile(String ownerId, String fileId) {
+        fileFacade.deleteFile(findById(ownerId), fileId);
+        userFacade.removeFileFromUser(ownerId, fileId);
     }
 
-    private boolean deleteDirectory(String ownerId) {
-        return fileFacade.deleteDirectory(ownerId);
+    private void deleteDirectory(String ownerId) {
+        fileFacade.deleteDirectory(findById(ownerId));
     }
 }

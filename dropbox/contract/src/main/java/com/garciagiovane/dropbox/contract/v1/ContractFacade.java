@@ -35,8 +35,8 @@ public class ContractFacade {
         return UserMapper.mapToContract(implFacade.updateUser(id, UserMapper.mapToImpl(userRequest)));
     }
 
-    boolean deleteUser(String id){
-        return implFacade.deleteUser(id);
+    void deleteUser(String id){
+        implFacade.deleteUser(id);
     }
 
     FileResponse saveFile(String ownerId, MultipartFile fileToSave) {
@@ -47,7 +47,7 @@ public class ContractFacade {
         return implFacade.searchFiles(ownerId, fileName, pageable).map(FileMapper::mapToFTPFileResponse);
     }
 
-    boolean deleteFile(String ownerId, String fileId) {
-        return implFacade.deleteFile(ownerId, fileId);
+    void deleteFile(String ownerId, String fileId) {
+        implFacade.deleteFile(ownerId, fileId);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,7 +29,6 @@ public class FileService {
 
     private FTPService ftpService;
     private FileRepository fileRepository;
-    private ImplUserFacade implUserFacade;
 
     private <T> Page<T> paginateList(List<T> listToPaginate, Pageable pageable) {
         int itemsQuantity = pageable.getPageSize();
@@ -45,40 +45,26 @@ public class FileService {
         return new PageImpl<>(files, pageable, listToPaginate.size());
     }
 
-    private List<FileModel> addItemsToListOfFiles(List<FileModel> files, FileModel newFile) {
-        files.add(newFile);
-        return files;
-    }
-
-    private List<FileModel> removeItemsFromListOfFiles(List<FileModel> files, FileModel fileToRemove) {
-        files.remove(fileToRemove);
-        return files;
-    }
-
-    public FileModel saveFile(String ownerId, MultipartFile fileToSave) {
-        UserModel user = implUserFacade.findById(ownerId);
+    public FileModel saveFile(UserModel owner, MultipartFile fileToSave) {
         try {
-            ftpService.saveFile(user, fileToSave);
+            ftpService.saveFile(owner, fileToSave);
             FileModel fileSaved = FileMapper.mapToFileModel(fileRepository.save(FileMapper.mapToEntity(FileModel.builder()
-                    .idOwner(ownerId)
+                    .idOwner(owner.getId())
                     .originalName(fileToSave.getOriginalFilename())
                     .viewers(Collections.emptyList())
                     .build())));
             fileSaved.setFtpName(fileSaved.getId() + "-" + fileToSave.getOriginalFilename());
-            ftpService.renameFile(user, fileSaved.getOriginalName(), fileSaved.getFtpName());
-            user.setFiles(addItemsToListOfFiles(user.getFiles(), fileSaved));
-            implUserFacade.updateUser(user.getId(), user);
+            ftpService.renameFile(owner, fileSaved.getOriginalName(), fileSaved.getFtpName());
             return fileSaved;
         } catch (IOException e) {
             throw new FTPErrorExitingException(e.getMessage());
         }
     }
 
-    public Page<ImplFTPFile> searchFileByName(String ownerId, String fileName, Pageable pageable) {
-        UserModel user = implUserFacade.findById(ownerId);
+    public Page<ImplFTPFile> searchFileByName(UserModel owner, String fileName, Pageable pageable) {
         if (fileName == null)
-            return paginateList(listAllFilesFTPFromUser(user), pageable);
-        return paginateList(listAllFilesFTPFromUser(user).stream().filter(implFTPFile -> implFTPFile.getName().contains(fileName)).collect(Collectors.toList()), pageable);
+            return paginateList(listAllFilesFTPFromUser(owner), pageable);
+        return paginateList(listAllFilesFTPFromUser(owner).stream().filter(implFTPFile -> implFTPFile.getName().contains(fileName)).collect(Collectors.toList()), pageable);
     }
 
     private List<ImplFTPFile> listAllFilesFTPFromUser(UserModel user) {
@@ -92,13 +78,10 @@ public class FileService {
         }
     }
 
-    public boolean deleteFile(String ownerId, String fileId) {
-        UserModel user = implUserFacade.findById(ownerId);
-        FileModel file = getFileFromList(user.getFiles(), fileId);
+    public boolean deleteFile(UserModel owner, String fileId) {
+        FileModel file = getFileFromList(owner.getFiles(), fileId);
         try {
-            if (ftpService.deleteFile(user, file.getFtpName())) {
-                user.setFiles(removeItemsFromListOfFiles(user.getFiles(), file));
-                implUserFacade.updateUser(ownerId, user);
+            if (ftpService.deleteFile(owner, file.getFtpName())) {
                 return true;
             }
             throw new FTPErrorDeletingFileException();
@@ -107,25 +90,25 @@ public class FileService {
         }
     }
 
-    public boolean deleteDirectory(String ownerId) {
-        UserModel user = implUserFacade.findById(ownerId);
-        if (ftpService.directoryExists(user)) {
-            listAllFilesFTPFromUser(user).forEach(file -> {
-                try {
-                    ftpService.deleteFile(user, file.getName());
-                } catch (IOException e) {
-                    throw new FTPErrorExitingException(e.getMessage());
-                }
-            });
+    public void deleteDirectory(UserModel owner) {
+        if (ftpService.directoryExists(owner)) {
             try {
-                if (ftpService.deleteDirectory(user))
-                    return true;
-                throw new FTPErrorDeletingFileException();
+                List<ImplFTPFile> filesFound = listAllFilesFTPFromUser(owner);
+                if (!ObjectUtils.isEmpty(filesFound))
+                    filesFound.forEach(file -> {
+                        try {
+                            ftpService.deleteFile(owner, file.getName());
+                        } catch (IOException e) {
+                            throw new FTPErrorExitingException(e.getMessage());
+                        }
+                    });
+
+                if (!ftpService.deleteDirectory(owner))
+                    throw new FTPErrorDeletingFileException();
             } catch (IOException e) {
                 throw new FTPErrorExitingException(e.getMessage());
             }
         }
-        return true;
     }
 
     private FileModel getFileFromList(List<FileModel> files, String fileId) {
