@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.impl.v1.user.mapper;
 
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
+import com.garciagiovane.dropbox.impl.v1.user.model.Viewer;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserEntity;
 
 public class UserMapper {
@@ -19,6 +20,14 @@ public class UserMapper {
                 .name(userModel.getName())
                 .email(userModel.getEmail())
                 .files(userModel.getFiles())
+                .build();
+    }
+
+    public static Viewer mapToViewer(UserModel userModel) {
+        return Viewer.builder()
+                .id(userModel.getId())
+                .email(userModel.getEmail())
+                .name(userModel.getName())
                 .build();
     }
 }

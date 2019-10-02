@@ -1,6 +1,5 @@
 package com.garciagiovane.dropbox.impl.v1.file.service;
 
-import com.garciagiovane.dropbox.impl.v1.user.ImplUserFacade;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPErrorDeletingFileException;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPErrorExitingException;
 import com.garciagiovane.dropbox.impl.v1.file.exception.FTPFileNotFoundException;
@@ -113,5 +112,9 @@ public class FileService {
 
     private FileModel getFileFromList(List<FileModel> files, String fileId) {
         return files.stream().filter(file -> file.getId().equalsIgnoreCase(fileId)).findFirst().orElseThrow(FTPFileNotFoundException::new);
+    }
+
+    public void saveFileShared(FileModel fileToSave) {
+        fileRepository.save(FileMapper.mapToEntity(fileToSave));
     }
 }

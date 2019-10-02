@@ -13,6 +13,7 @@ plugins {
     id 'java'
     id "application"
     id 'org.springframework.boot' version '2.1.4.RELEASE'
+    id "org.sonarqube" version "2.7.1"
 }
 
 mainClassName = 'com.garciagiovane.dropbox.ArchitectureApplication'
@@ -27,6 +28,8 @@ allprojects {
 
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'jacoco'
+
 
     group = 'com.garciagiovane'
     version = '0.0.1-SNAPSHOT'

@@ -30,4 +30,8 @@ public class ImplFileFacade {
     public void deleteDirectory(UserModel owner) {
         fileService.deleteDirectory(owner);
     }
+
+    public void saveFileShared(FileModel fileModel) {
+        fileService.saveFileShared(fileModel);
+    }
 }

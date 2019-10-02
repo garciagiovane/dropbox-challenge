@@ -1,6 +1,7 @@
 package com.garciagiovane.dropbox.impl.v1.user;
 
 import com.garciagiovane.dropbox.impl.v1.file.model.FileModel;
+import com.garciagiovane.dropbox.impl.v1.user.model.ShareModel;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import com.garciagiovane.dropbox.impl.v1.user.service.UserService;
 import lombok.AllArgsConstructor;
@@ -39,5 +40,9 @@ public class ImplUserFacade {
 
     public void deleteUser(String id){
         userService.deleteUser(id);
+    }
+
+    public FileModel shareFile(String ownerId, ShareModel shareModel) {
+        return userService.shareFile(ownerId, shareModel);
     }
 }

@@ -1,40 +1,26 @@
 package com.garciagiovane.dropbox.impl.v1.user.mapper;
 
-import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
-import com.garciagiovane.dropbox.impl.v1.user.repository.UserEntity;
+import com.garciagiovane.dropbox.stubs.UserEntityStub;
+import com.garciagiovane.dropbox.stubs.UserModelStub;
 import org.junit.Test;
-
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
 public class UserMapperTest {
-    private UserEntity entity = UserEntity.builder()
-            .id("someId")
-            .name("user")
-            .email("user@mail.com")
-            .files(Collections.emptyList())
-            .build();
-    private UserModel model = UserModel.builder()
-            .id(entity.getId())
-            .name(entity.getName())
-            .email(entity.getEmail())
-            .files(entity.getFiles())
-            .build();
 
     @Test
     public void mapToModel() {
-        assertEquals(model.getName(), UserMapper.mapToModel(entity).getName());
-        assertEquals(model.getEmail(), UserMapper.mapToModel(entity).getEmail());
-        assertEquals(model.getId(), UserMapper.mapToModel(entity).getId());
-        assertEquals(model.getFiles(), UserMapper.mapToModel(entity).getFiles());
+        assertEquals(UserModelStub.getUserModel().getName(), UserMapper.mapToModel(UserEntityStub.getUserEntity()).getName());
+        assertEquals(UserModelStub.getUserModel().getEmail(), UserMapper.mapToModel(UserEntityStub.getUserEntity()).getEmail());
+        assertEquals(UserModelStub.getUserModel().getId(), UserMapper.mapToModel(UserEntityStub.getUserEntity()).getId());
+        assertEquals(UserModelStub.getUserModel().getFiles(), UserMapper.mapToModel(UserEntityStub.getUserEntity()).getFiles());
     }
 
     @Test
     public void mapToEntity() {
-        assertEquals(entity.getName(), UserMapper.mapToEntity(model).getName());
-        assertEquals(entity.getEmail(), UserMapper.mapToEntity(model).getEmail());
-        assertEquals(entity.getId(), UserMapper.mapToEntity(model).getId());
-        assertEquals(entity.getFiles(), UserMapper.mapToEntity(model).getFiles());
+        assertEquals(UserEntityStub.getUserEntity().getName(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getName());
+        assertEquals(UserEntityStub.getUserEntity().getEmail(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getEmail());
+        assertEquals(UserEntityStub.getUserEntity().getId(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getId());
+        assertEquals(UserEntityStub.getUserEntity().getFiles(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getFiles());
     }
 }

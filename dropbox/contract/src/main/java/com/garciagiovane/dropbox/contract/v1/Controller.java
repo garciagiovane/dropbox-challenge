@@ -2,6 +2,7 @@ package com.garciagiovane.dropbox.contract.v1;
 
 import com.garciagiovane.dropbox.contract.v1.file.model.response.FTPFileResponse;
 import com.garciagiovane.dropbox.contract.v1.file.model.response.FileResponse;
+import com.garciagiovane.dropbox.contract.v1.user.model.request.ShareRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.request.UserRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.response.UserResponse;
 import lombok.AllArgsConstructor;
@@ -64,5 +65,11 @@ public class Controller {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteFile(@PathVariable String ownerId, @PathVariable String fileId) {
         contractFacade.deleteFile(ownerId, fileId);
+    }
+
+    @PostMapping("/{ownerId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void shareFile(@PathVariable String ownerId, @RequestBody ShareRequest shareRequest) {
+        contractFacade.shareFile(ownerId, shareRequest);
     }
 }

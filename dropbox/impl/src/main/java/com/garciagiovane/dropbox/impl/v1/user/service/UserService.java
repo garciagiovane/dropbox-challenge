@@ -6,14 +6,15 @@ import com.garciagiovane.dropbox.impl.v1.user.exception.FileNotFoundException;
 import com.garciagiovane.dropbox.impl.v1.user.exception.UserExistsException;
 import com.garciagiovane.dropbox.impl.v1.user.exception.UserNotFoundException;
 import com.garciagiovane.dropbox.impl.v1.user.mapper.UserMapper;
+import com.garciagiovane.dropbox.impl.v1.user.model.ShareModel;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
+import com.garciagiovane.dropbox.impl.v1.user.model.Viewer;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserEntity;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -80,5 +81,18 @@ public class UserService {
 
     public void deleteUser(String id) {
         userRepository.delete(UserMapper.mapToEntity(findById(id)));
+    }
+
+    private List<Viewer> addViewerToList(List<Viewer> viewers, Viewer viewer) {
+        viewers.add(viewer);
+        return viewers;
+    }
+
+    public FileModel shareFile(String ownerId, ShareModel shareModel) {
+        UserModel owner = findById(ownerId);
+        UserModel userRecipient = findById(shareModel.getUserRecipientId());
+        FileModel fileToShare = owner.getFiles().stream().filter(file -> file.getId().equals(shareModel.getFileId())).peek(fileModel -> fileModel.setViewers(addViewerToList(fileModel.getViewers(), UserMapper.mapToViewer(userRecipient)))).findFirst().orElseThrow(FileNotFoundException::new);
+        userRepository.save(UserMapper.mapToEntity(owner));
+        return fileToShare;
     }
 }

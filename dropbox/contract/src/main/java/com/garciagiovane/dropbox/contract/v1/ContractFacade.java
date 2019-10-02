@@ -3,7 +3,9 @@ package com.garciagiovane.dropbox.contract.v1;
 import com.garciagiovane.dropbox.contract.v1.file.mapper.FileMapper;
 import com.garciagiovane.dropbox.contract.v1.file.model.response.FTPFileResponse;
 import com.garciagiovane.dropbox.contract.v1.file.model.response.FileResponse;
+import com.garciagiovane.dropbox.contract.v1.user.mapper.ShareMapper;
 import com.garciagiovane.dropbox.contract.v1.user.mapper.UserMapper;
+import com.garciagiovane.dropbox.contract.v1.user.model.request.ShareRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.request.UserRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.response.UserResponse;
 import com.garciagiovane.dropbox.impl.v1.ImplFacade;
@@ -49,5 +51,9 @@ public class ContractFacade {
 
     void deleteFile(String ownerId, String fileId) {
         implFacade.deleteFile(ownerId, fileId);
+    }
+
+    public void shareFile(String ownerId, ShareRequest shareRequest) {
+        implFacade.shareFile(ownerId, ShareMapper.mapToImpl(shareRequest));
     }
 }

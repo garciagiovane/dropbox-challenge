@@ -4,6 +4,7 @@ import com.garciagiovane.dropbox.impl.v1.file.ImplFileFacade;
 import com.garciagiovane.dropbox.impl.v1.file.model.FileModel;
 import com.garciagiovane.dropbox.impl.v1.file.model.ImplFTPFile;
 import com.garciagiovane.dropbox.impl.v1.user.ImplUserFacade;
+import com.garciagiovane.dropbox.impl.v1.user.model.ShareModel;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,5 +54,9 @@ public class ImplFacade {
 
     private void deleteDirectory(String ownerId) {
         fileFacade.deleteDirectory(findById(ownerId));
+    }
+
+    public void shareFile(String ownerId, ShareModel shareModel) {
+        fileFacade.saveFileShared(userFacade.shareFile(ownerId, shareModel));
     }
 }
