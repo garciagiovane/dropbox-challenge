@@ -2,6 +2,7 @@ package com.garciagiovane.dropbox.impl.v1.user.mapper;
 
 import com.garciagiovane.dropbox.stubs.UserEntityStub;
 import com.garciagiovane.dropbox.stubs.UserModelStub;
+import com.garciagiovane.dropbox.stubs.ViewerStub;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -22,5 +23,12 @@ public class UserMapperTest {
         assertEquals(UserEntityStub.getUserEntity().getEmail(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getEmail());
         assertEquals(UserEntityStub.getUserEntity().getId(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getId());
         assertEquals(UserEntityStub.getUserEntity().getFiles(), UserMapper.mapToEntity(UserModelStub.getUserModel()).getFiles());
+    }
+
+    @Test
+    public void shouldMapUserModelToViewer() {
+        assertEquals(ViewerStub.getViewer().getName(), UserMapper.mapToViewer(UserModelStub.getUserModel()).getName());
+        assertEquals(ViewerStub.getViewer().getEmail(), UserMapper.mapToViewer(UserModelStub.getUserModel()).getEmail());
+        assertEquals(ViewerStub.getViewer().getId(), UserMapper.mapToViewer(UserModelStub.getUserModel()).getId());
     }
 }

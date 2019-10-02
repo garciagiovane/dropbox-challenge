@@ -10,6 +10,7 @@ import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserEntity;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserRepository;
 import com.garciagiovane.dropbox.stubs.FileStub;
+import com.garciagiovane.dropbox.stubs.ShareModelStub;
 import com.garciagiovane.dropbox.stubs.UserEntityStub;
 import com.garciagiovane.dropbox.stubs.UserModelStub;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -140,5 +142,18 @@ public class UserServiceTest {
         when(repository.findById("someId")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntity()));
 
         userService.removeFileFromUser("someId", "fileId");
+    }
+
+    @Test
+    public void shouldShareAFileThenSaveAUserAndReturnAFileModel() {
+        UserEntity userEntity = UserEntityStub.getUserEntity();
+        userEntity.setFiles(List.of(FileStub.getFileModel()));
+
+        when(repository.findById("ownerId")).thenReturn(Optional.of(userEntity));
+        when(repository.findById("recipientId")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntityDifferent()));
+        when(repository.save(any())).thenReturn(any());
+
+        FileModel file = userService.shareFile("ownerId", ShareModelStub.getShareModel());
+        assertEquals(file.getViewers().get(0).getName(), UserEntityStub.getUserEntityDifferent().getName());
     }
 }
