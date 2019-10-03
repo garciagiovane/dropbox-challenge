@@ -13,7 +13,7 @@ plugins {
     id 'java'
     id "application"
     id 'org.springframework.boot' version '2.1.4.RELEASE'
-    id "org.sonarqube" version "2.7.1"
+    id "org.sonarqube" version "2.7"
 }
 
 mainClassName = 'com.garciagiovane.dropbox.ArchitectureApplication'

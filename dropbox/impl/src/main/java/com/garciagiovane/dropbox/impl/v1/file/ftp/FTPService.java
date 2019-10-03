@@ -51,18 +51,16 @@ public class FTPService {
         }
     }
 
-    public boolean saveFile(UserModel owner, MultipartFile fileToSave) throws IOException {
+    public void saveFile(UserModel owner, MultipartFile fileToSave) throws IOException {
         FTPClient ftpClient = getInstance();
         try {
             if (directoryExists(owner)) {
                 ftpClient.changeWorkingDirectory(owner.getId());
                 ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
-                return true;
             }
             ftpClient.makeDirectory(owner.getId());
             ftpClient.changeWorkingDirectory(owner.getId());
             ftpClient.storeFile(fileToSave.getOriginalFilename(), fileToSave.getInputStream());
-            return true;
         } catch (IOException e) {
             throw new FTPErrorSavingFileException(e.getMessage());
         } finally {
@@ -71,13 +69,12 @@ public class FTPService {
         }
     }
 
-    public boolean renameFile(UserModel owner, String nameSavedOnFTP, String newName) throws IOException {
+    public void renameFile(UserModel owner, String nameSavedOnFTP, String newName) throws IOException {
         FTPClient ftpClient = getInstance();
         try {
             ftpClient.changeWorkingDirectory(owner.getId());
-            if (ftpClient.rename(nameSavedOnFTP, newName))
-                return true;
-            throw new FTPException("Error renaming file");
+            if (!ftpClient.rename(nameSavedOnFTP, newName))
+                throw new FTPException("Error renaming file");
         } catch (IOException e) {
             throw new FTPException(e.getMessage());
         } finally {

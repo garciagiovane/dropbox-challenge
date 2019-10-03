@@ -24,8 +24,7 @@ public class UserService {
 
     public UserModel findById(String id) {
         return UserMapper.mapToModel(userRepository.findById(id).orElseThrow(() -> {
-            UserNotFoundException userNotFoundException = new UserNotFoundException();
-            throw new ApiException(List.of(userNotFoundException), HttpStatus.NOT_FOUND);
+            throw new ApiException(List.of(new UserNotFoundException()), HttpStatus.NOT_FOUND);
         }));
     }
 
@@ -42,14 +41,14 @@ public class UserService {
     public Page<UserModel> findAllUsers(Pageable pageable) {
         Page<UserEntity> usersFound = userRepository.findAll(pageable);
         if (usersFound.isEmpty())
-            throw new EmptyDatabaseException();
+            throw new ApiException(List.of(new EmptyDatabaseException()), HttpStatus.NOT_FOUND);
         return usersFound.map(UserMapper::mapToModel);
     }
 
     public UserModel updateUser(String id, UserModel userModel) {
         UserModel user = findById(id);
         if (userExists(userModel) && !userModel.getEmail().equalsIgnoreCase(user.getEmail()))
-            throw new UserExistsException();
+            throw new ApiException(List.of(new UserExistsException()), HttpStatus.BAD_REQUEST);
 
         user.setName(userModel.getName());
         user.setEmail(userModel.getEmail());
@@ -58,7 +57,9 @@ public class UserService {
 
     public void removeFileFromUser(String userId, String fileId) {
         UserModel user = findById(userId);
-        FileModel file = user.getFiles().stream().filter(fileModel -> fileModel.getId().equals(fileId)).findFirst().orElseThrow(FileNotFoundException::new);
+        FileModel file = user.getFiles().stream().filter(fileModel -> fileModel.getId().equals(fileId)).findFirst().orElseThrow(() -> {
+            throw new ApiException(List.of(new FileNotFoundException()), HttpStatus.NOT_FOUND);
+        });
         user.setFiles(removeFilesFromList(user.getFiles(), file));
         userRepository.save(UserMapper.mapToEntity(user));
     }
@@ -69,7 +70,7 @@ public class UserService {
     }
 
     public FileModel addFilesToUser(String userId, FileModel file) {
-        UserModel userModel = UserMapper.mapToModel(userRepository.findById(userId).orElseThrow(UserNotFoundException::new));
+        UserModel userModel = findById(userId);
         userModel.setFiles(addFileToList(userModel.getFiles(), file));
         userRepository.save(UserMapper.mapToEntity(userModel));
         return file;
@@ -92,7 +93,11 @@ public class UserService {
     public FileModel shareFile(String ownerId, ShareModel shareModel) {
         UserModel owner = findById(ownerId);
         UserModel userRecipient = findById(shareModel.getUserRecipientId());
-        FileModel fileToShare = owner.getFiles().stream().filter(file -> file.getId().equals(shareModel.getFileId())).peek(fileModel -> fileModel.setViewers(addViewerToList(fileModel.getViewers(), UserMapper.mapToViewer(userRecipient)))).findFirst().orElseThrow(FileNotFoundException::new);
+        FileModel fileToShare = owner.getFiles().stream().filter(file -> file.getId().equals(shareModel.getFileId()))
+                .peek(fileModel -> fileModel.setViewers(addViewerToList(fileModel.getViewers(), UserMapper.mapToViewer(userRecipient))))
+                .findFirst().orElseThrow(() -> {
+            throw new ApiException(List.of(new FileNotFoundException()), HttpStatus.NOT_FOUND);
+        });
         userRepository.save(UserMapper.mapToEntity(owner));
         return fileToShare;
     }

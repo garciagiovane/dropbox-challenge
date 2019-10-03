@@ -1,4 +1,4 @@
-package com.garciagiovane.dropbox.stubs;
+package com.garciagiovane.dropbox.impl.v1.user.stubs;
 
 import com.garciagiovane.dropbox.impl.v1.user.model.Viewer;
 

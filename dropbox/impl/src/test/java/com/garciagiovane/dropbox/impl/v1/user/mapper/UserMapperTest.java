@@ -1,8 +1,8 @@
 package com.garciagiovane.dropbox.impl.v1.user.mapper;
 
-import com.garciagiovane.dropbox.stubs.UserEntityStub;
-import com.garciagiovane.dropbox.stubs.UserModelStub;
-import com.garciagiovane.dropbox.stubs.ViewerStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.UserEntityStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.UserModelStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.ViewerStub;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

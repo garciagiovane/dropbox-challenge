@@ -1,18 +1,15 @@
 package com.garciagiovane.dropbox.impl.v1.user.service;
 
 import com.garciagiovane.dropbox.impl.v1.file.model.FileModel;
-import com.garciagiovane.dropbox.impl.v1.user.exception.EmptyDatabaseException;
-import com.garciagiovane.dropbox.impl.v1.user.exception.FileNotFoundException;
-import com.garciagiovane.dropbox.impl.v1.user.exception.UserExistsException;
-import com.garciagiovane.dropbox.impl.v1.user.exception.UserNotFoundException;
+import com.garciagiovane.dropbox.impl.v1.user.exception.*;
 import com.garciagiovane.dropbox.impl.v1.user.mapper.UserMapper;
 import com.garciagiovane.dropbox.impl.v1.user.model.UserModel;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserEntity;
 import com.garciagiovane.dropbox.impl.v1.user.repository.UserRepository;
-import com.garciagiovane.dropbox.stubs.FileStub;
-import com.garciagiovane.dropbox.stubs.ShareModelStub;
-import com.garciagiovane.dropbox.stubs.UserEntityStub;
-import com.garciagiovane.dropbox.stubs.UserModelStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.FileStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.ShareModelStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.UserEntityStub;
+import com.garciagiovane.dropbox.impl.v1.user.stubs.UserModelStub;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -48,15 +45,15 @@ public class UserServiceTest {
         assertEquals(UserModelStub.getUserModel(), model);
     }
 
-    @Test(expected = UserNotFoundException.class)
+    @Test(expected = ApiException.class)
     public void deveLancarExceptionQuandoNaoEncontrarPeloId() {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
         userService.findById("someId");
     }
 
-    @Test(expected = UserNotFoundException.class)
+    @Test(expected = ApiException.class)
     public void shouldThrowExceptionWhenUserIsNotFound() {
-        when(repository.findById(anyString())).thenThrow(UserNotFoundException.class);
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
         userService.findById("someId");
     }
 
@@ -69,7 +66,7 @@ public class UserServiceTest {
         assertEquals(UserModelStub.getUserModel(), userModel);
     }
 
-    @Test(expected = UserExistsException.class)
+    @Test(expected = ApiException.class)
     public void willThrowExceptionWhenModelEmailIsEqualToTheModelEmailPassedByParameter() {
         when(repository.findByEmail(anyString())).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntity()));
         userService.create(UserModelStub.getUserModel());
@@ -85,7 +82,7 @@ public class UserServiceTest {
         assertEquals(UserModelStub.getUserModel(), allUsers.getContent().get(0));
     }
 
-    @Test(expected = EmptyDatabaseException.class)
+    @Test(expected = ApiException.class)
     public void shouldThrowExceptionWhenThereIsNoUsersInTheDatabase() {
         when(repository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(Collections.emptyList()));
         Pageable pageable = PageRequest.of(0, 1);
@@ -101,7 +98,7 @@ public class UserServiceTest {
         assertEquals(UserMapper.mapToModel(UserEntityStub.getUserEntityDifferent()), userModel);
     }
 
-    @Test(expected = UserExistsException.class)
+    @Test(expected = ApiException.class)
     public void shouldThrowExceptionAfterPassModelWithEmailAlreadyRegistered() {
         when(repository.findById("someId")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntity()));
         when(repository.findByEmail("iron@man.com")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntityDifferent()));
@@ -137,7 +134,7 @@ public class UserServiceTest {
         assertEquals(fileSaved.getFtpName(), FileStub.getFileModel().getFtpName());
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = ApiException.class)
     public void shouldThrowFileNotFoundExceptionWhenFileIsNotInTheDatabase() {
         when(repository.findById("someId")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntity()));
 
@@ -155,5 +152,13 @@ public class UserServiceTest {
 
         FileModel file = userService.shareFile("ownerId", ShareModelStub.getShareModel());
         assertEquals(file.getViewers().get(0).getName(), UserEntityStub.getUserEntityDifferent().getName());
+    }
+
+    @Test(expected = ApiException.class)
+    public void shouldThrowFileNotFoundExceptionWhenUserDoesNotHaveThatFile() {
+        when(repository.findById("ownerId")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntity()));
+        when(repository.findById("recipientId")).thenReturn(Optional.ofNullable(UserEntityStub.getUserEntityDifferent()));
+
+        userService.shareFile("ownerId", ShareModelStub.getShareModel());
     }
 }
