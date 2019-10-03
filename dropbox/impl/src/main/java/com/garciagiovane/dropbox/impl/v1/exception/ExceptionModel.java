@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,6 +15,5 @@ import java.time.LocalDateTime;
 public class ExceptionModel {
     private int status;
     private LocalDateTime timestamp;
-    private String message;
-    private String debugMessage;
+    private List<Issue> errors;
 }

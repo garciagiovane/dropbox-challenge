@@ -9,6 +9,7 @@ import com.garciagiovane.dropbox.contract.v1.user.model.request.ShareRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.request.UserRequest;
 import com.garciagiovane.dropbox.contract.v1.user.model.response.UserResponse;
 import com.garciagiovane.dropbox.impl.v1.ImplFacade;
+import com.garciagiovane.dropbox.contract.v1.util.ImplValidation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class ContractFacade {
     private ImplFacade implFacade;
 
     UserResponse create(UserRequest userRequest){
+        ImplValidation.validateUserFields(userRequest);
         return UserMapper.mapToContract(implFacade.create(UserMapper.mapToImpl(userRequest)));
     }
 
@@ -34,6 +36,7 @@ public class ContractFacade {
     }
 
     UserResponse updateUser(String id, UserRequest userRequest){
+        ImplValidation.validateUserFields(userRequest);
         return UserMapper.mapToContract(implFacade.updateUser(id, UserMapper.mapToImpl(userRequest)));
     }
 
@@ -53,7 +56,7 @@ public class ContractFacade {
         implFacade.deleteFile(ownerId, fileId);
     }
 
-    public void shareFile(String ownerId, ShareRequest shareRequest) {
+    void shareFile(String ownerId, ShareRequest shareRequest) {
         implFacade.shareFile(ownerId, ShareMapper.mapToImpl(shareRequest));
     }
 }
